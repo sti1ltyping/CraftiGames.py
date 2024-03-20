@@ -1,5 +1,6 @@
 import aiohttp
 import json
+from datetime import datetime
 
 
 class Pikanetwork():
@@ -10,6 +11,9 @@ class Pikanetwork():
 
     A basic wrapper for the PikaNetwork's API.
     """
+
+    API_requests = int()
+
     class __Client_Guild_Profile__:
         def __init__(self, data):
             self.data = data
@@ -59,21 +63,65 @@ class Pikanetwork():
         async def __aexit__(self, exc_type, exc_val, exc_tb):
             pass
 
+        async def connections(self):
+            """Returns status of discord account, server boosting and email connection"""
+            return self.data.get("discord_verified"), self.data.get("discord_boosting"), self.data.get("email_verified")
+
         async def username(self):
             """Returns username of the player.\n~~~"""
             return self.data.get("username")
         
-        async def level(self):
+        async def level(self) -> str:
             """Returns current level of the player.\n~~~"""
             return self.data.get("rank", {}).get("level")
+        
+        async def level_percentage(self) -> float:
+            """Returns level percentage."""
+            return float(self.data.get("rank", {}).get("percentage", 0))
         
         async def highest_minigame_rank(self):
             """Returns highest minigame rank of the player.\n~~~"""
             sorted_ranks = sorted(self.data.get("ranks", []), key=lambda x: {
                 "developer": 0, "admin": 1,"manager": 2, "srmod": 3, "moderator": 4, "helper": 5, "trial": 6, "youtuber": 7, "champion": 8, "titan": 9, "elite": 10, "vip": 11
             }.get(x.get('displayName', '').lower(), float('inf')))
-            return sorted_ranks[0]['displayName'] if sorted_ranks else 'Unranked'
+            check = sorted_ranks[0]['displayName'] if sorted_ranks else 'Unranked'
+            if check.lower() in ["developer", "admin", "manager", "srmod", "moderator", "helper", "trial", "youtuber", "champion", "titan", "elite", "vip"]:
+                return check
+            else:
+                return 'Unranked'
+        
+        async def highest_practice_rank(self):
+            """Returns highest practice rank of the player.\n~~~"""
+            sorted_ranks = sorted(self.data.get("ranks", []), key=lambda x: {
+                "emerald": 0,"diamond": 1, "gold": 2, "silver": 3
+            }.get(x.get('displayName', '').lower(), float('inf')))
+            check = sorted_ranks[0]['displayName'] if sorted_ranks else 'Unranked'
+            if check.lower() in ["emerald","diamond", "gold", "silver"]:
+                return check
+            else:
+                return 'Unranked'
+        
+        async def last_seen(self) -> int:
+            """Returns last seen value discord format."""
+            last_seen_raw = self.data.get("lastSeen")
+            last_seen = str(last_seen_raw)[:-3]
+            return int(last_seen)
+        
+        async def friend_list(self):
+            """Return a list of player's friends. NOTE: Return None if no friends found!"""
+            friends_raw = self.data.get('friends', [])
+            friends = [user['username'] for user in friends_raw]
 
+            if not friends_raw:
+                return None
+            return friends
+        
+        async def friend_count(self) -> int:
+            """Return number of friend(s). NOTE: Return None if no friends found!"""
+            frineds = self.data.get('friends', [])
+            if not frineds:
+                return None
+            return int(len(frineds))
         
         async def guild(self):
             """Fetch guild of the player.\n~~~\n\nreturn None if guild is not found:\n~~~"""
@@ -315,6 +363,178 @@ class Pikanetwork():
             leaderboard = arrows_shot[0].get("place", "0") if arrows_shot and arrows_shot[0] else "0"
             return value, leaderboard
 
+        async def kdr(self):
+            """Returns 'kdr' block.\n\nTo extract:\n~~~~\n\n~~~\nfrom PikaPY import Pikanetwork\nimport asyncio\n\nasync def example():\n    client = await Pikanetwork().Stats(player='Example', gamemode='skywars', interval='weekly', mode='all_modes')\n    if client:\n        value, leaderboard = await client.kdr()\n        print('kdr:', value, 'leaderboard:', leaderboard)\n    else:\n        print('Failed to get response')\n\nasyncio.run(example())"""
+
+            kills, _ = await self.kills()
+            deaths, _ = await self.deaths()
+            if deaths == "0":
+                return int(kills)
+            else:
+                return int(int(kills) / int(deaths))
+            
+        async def wlr(self):
+            """Returns 'wlr' block.\n\nTo extract:\n~~~~\n\n~~~\nfrom PikaPY import Pikanetwork\nimport asyncio\n\nasync def example():\n    client = await Pikanetwork().Stats(player='Example', gamemode='skywars', interval='weekly', mode='all_modes')\n    if client:\n        value, leaderboard = await client.kdr()\n        print('kdr:', value, 'leaderboard:', leaderboard)\n    else:\n        print('Failed to get response')\n\nasyncio.run(example())"""
+
+            wins, _ = await self.wins()
+            losses, _ = await self.losses()
+            if losses == "0":
+                return int(wins)
+            else:
+                return int(int(wins) / int(losses))
+    
+
+    class _PlayerStats__RANKEDPRACTICE_:
+        def __init__(self, data):
+            self.data = data
+
+        async def wins(self):
+            """"""
+
+            wins = self.data.get("Wins", {}).get("entries", [{}])
+            value = wins[0].get("value", "0") if wins and wins[0] else "0"
+            leaderboard = wins[0].get("place", "0") if wins and wins[0] else "0"
+            return value, leaderboard
+        
+        async def losses(self):
+            """"""
+
+            Losses = self.data.get("Losses", {}).get("entries", [{}])
+            value = Losses[0].get("value", "0") if Losses and Losses[0] else "0"
+            leaderboard = Losses[0].get("place", "0") if Losses and Losses[0] else "0"
+            return value, leaderboard
+        
+        async def kills(self):
+            """"""
+
+            kills = self.data.get("Kills", {}).get("entries", [{}])
+            value = kills[0].get("value", "0") if kills and kills[0] else "0"
+            leaderboard = kills[0].get("place", "0") if kills and kills[0] else "0"
+            return value, leaderboard
+                    
+        async def bow_kills(self):
+            """"""
+
+            bow_kills = self.data.get("Bow kills", {}).get("entries", [{}])
+            value = bow_kills[0].get("value", "0") if bow_kills and bow_kills[0] else "0"
+            leaderboard = bow_kills[0].get("place", "0") if bow_kills and bow_kills[0] else "0"
+            return value, leaderboard
+        
+        async def games_played(self):
+            """"""
+
+            games_played = self.data.get("Games played", {}).get("entries", [{}])
+            value = games_played[0].get("value", "0") if games_played and games_played[0] else "0"
+            leaderboard = games_played[0].get("place", "0") if games_played and games_played[0] else "0"
+            return value, leaderboard
+        
+        async def highest_win_streak_reached(self):
+            """"""
+
+            highest_winstreak = self.data.get("Highest winstreak reached", {}).get("entries", [{}])
+            value = highest_winstreak[0].get("value", "0") if highest_winstreak and highest_winstreak[0] else "0"
+            leaderboard = highest_winstreak[0].get("place", "0") if highest_winstreak and highest_winstreak[0] else "0"
+            return value, leaderboard
+        
+    class _PlayerStats__UNRANKEDPRACTICE_:
+        def __init__(self, data):
+            self.data = data
+
+        async def wins(self):
+            """"""
+
+            wins = self.data.get("Wins", {}).get("entries", [{}])
+            value = wins[0].get("value", "0") if wins and wins[0] else "0"
+            leaderboard = wins[0].get("place", "0") if wins and wins[0] else "0"
+            return value, leaderboard
+        
+        async def losses(self):
+            """"""
+
+            Losses = self.data.get("Losses", {}).get("entries", [{}])
+            value = Losses[0].get("value", "0") if Losses and Losses[0] else "0"
+            leaderboard = Losses[0].get("place", "0") if Losses and Losses[0] else "0"
+            return value, leaderboard
+        
+        async def kills(self):
+            """"""
+
+            kills = self.data.get("Kills", {}).get("entries", [{}])
+            value = kills[0].get("value", "0") if kills and kills[0] else "0"
+            leaderboard = kills[0].get("place", "0") if kills and kills[0] else "0"
+            return value, leaderboard
+                    
+        async def bow_kills(self):
+            """"""
+
+            bow_kills = self.data.get("Bow kills", {}).get("entries", [{}])
+            value = bow_kills[0].get("value", "0") if bow_kills and bow_kills[0] else "0"
+            leaderboard = bow_kills[0].get("place", "0") if bow_kills and bow_kills[0] else "0"
+            return value, leaderboard
+        
+        async def games_played(self):
+            """"""
+            
+            games_played = self.data.get("Games played", {}).get("entries", [{}])
+            value = games_played[0].get("value", "0") if games_played and games_played[0] else "0"
+            leaderboard = games_played[0].get("place", "0") if games_played and games_played[0] else "0"
+            return value, leaderboard
+        
+        async def highest_win_streak_reached(self):
+            """"""
+
+            highest_winstreak = self.data.get("Highest winstreak reached", {}).get("entries", [{}])
+            value = highest_winstreak[0].get("value", "0") if highest_winstreak and highest_winstreak[0] else "0"
+            leaderboard = highest_winstreak[0].get("place", "0") if highest_winstreak and highest_winstreak[0] else "0"
+            return value, leaderboard
+            
+    
+    class GuildContext:
+        def __init__(self, data):
+            self.data = data
+
+        async def name(self):
+            """Returns guild name.\n~~~"""
+            return self.data.get("name", None)
+        
+        async def tag(self):
+            """Returns guild tag.\n~~~"""
+            return self.data.get("tag", None)
+        
+        async def leader(self):
+            """Returns username of the guild leader.\n~~~"""
+            return self.data.get("owner", {}).get("username", None)
+        
+        async def level(self):
+            """Returns current level of the guild.\n~~~"""
+            return self.data.get("leveling",{}).get("level", None)
+        
+        async def created_at(self):
+            """Return timestamp of guild created at.\n~~~"""
+            return f"{int(datetime.timestamp(datetime.fromisoformat(self.data.get('creationTime', 0))))}"
+
+        async def member_list(self):
+            """Returns guild members [LIST].\n~~~"""
+            members = self.data.get("members", [])
+            list = []
+            for member in members:
+                member_stats = member["user"]["username"]
+                list.append(member_stats)
+            return list 
+        
+        async def member_count(self):
+            """Returns member count of the guild.\n~~~"""
+            members = self.data.get("members", [])
+            list = []
+            for member in members:
+                member_stats = member["user"]["username"]
+                list.append(member_stats)
+            return int(len(list))
+        
+        async def raw(self):
+            """Return data"""
+            return self.data
+
         
     async def Profile(self, player):
         """
@@ -342,7 +562,7 @@ class Pikanetwork():
         interval: Option[weekly, yearly, monthly, total]
 
         mode: Option[
-            [BEDWARS: SOLO/DOUBLES/TRIPLES/QUADS/ALL_MODES],
+            [BEDWARS: SOLO/DOUBLES/TRIPLES/QUAD/ALL_MODES],
             [SKYWARS: SOLO/DOUBLES/ALL_MODES]
         ]"""
 
@@ -357,17 +577,41 @@ class Pikanetwork():
                 if int(resp.status) !=  200:
 
                     if int(resp.status) ==  400:
-                        pass
+                        return None
                     elif int(resp.status) == 404:
-                        pass
+                        return None
                     else:
-                        pass
+                        return None
                 data = json.loads(await resp.text())
 
                 if self.gamemode == 'bedwars':
                     return self._PlayerStats__BEDWARS_(data)
                 elif self.gamemode == 'skywars':
                     return self._PlayerStats__SKYWARS_(data)
+                elif self.gamemode == 'unrankedpractice':
+                    return self._PlayerStats__UNRANKEDPRACTICE_(data)
+                elif self.gamemode == 'rankedpractice':
+                    return self._PlayerStats__RANKEDPRACTICE_(data)
+                else:
+                    raise 'Not a valid argument!'
+                
+    
+    async def Guild(self, guild):
+        """
+        Guild: str[Any]
+        ~~~~~~~~~~~~~~~~
+        
+        Fetch guild data of a given guild.
+        """
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f'https://stats.pika-network.net/api/clans/{guild}') as resp:
+                if int(resp.status) !=  200:
+                    return None
+                
+                data = json.loads(await resp.text())
+                return self.GuildContext(data)
+
+
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
