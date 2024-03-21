@@ -1,6 +1,28 @@
 import aiohttp
 import json
-from datetime import datetime
+import asyncio
+from datetime import datetime, timedelta
+
+API_requests = 0
+last_request_time = datetime.now()
+
+async def avoid_rate_limits():
+    """
+    Check if the rate limit has been reached,
+    and introduce a delay if necessary.
+    """
+    global API_requests, last_request_time
+    current_time = datetime.now()
+    time_difference = current_time - last_request_time
+
+    if API_requests >= 10 and time_difference <= timedelta(seconds=1):
+        remaining_time = (timedelta(seconds=1) - time_difference).total_seconds()
+        await asyncio.sleep(remaining_time)
+
+        API_requests = 0
+        last_request_time = datetime.now()
+
+    last_request_time = current_time
 
 
 class Pikanetwork():
@@ -12,7 +34,6 @@ class Pikanetwork():
     A basic wrapper for the PikaNetwork's API.
     """
 
-    API_requests = int()
 
     class __Client_Guild_Profile__:
         def __init__(self, data):
@@ -544,6 +565,9 @@ class Pikanetwork():
         Fetch profile values of a given player.
         Can not be hidden from the API.
         """
+        global API_requests
+        API_requests += 1
+        await avoid_rate_limits()
         async with aiohttp.ClientSession() as session:
             async with session.get(f'https://stats.pika-network.net/api/profile/{player}') as resp:
                 if int(resp.status) !=  200:
@@ -571,7 +595,9 @@ class Pikanetwork():
         self.interval = interval.lower()
         self.mode = mode.upper()
 
-
+        global API_requests
+        API_requests += 1
+        await avoid_rate_limits()
         async with aiohttp.ClientSession() as session:
             async with session.get(f'https://stats.pika-network.net/api/profile/{self.player}/leaderboard?type={self.gamemode}&interval={self.interval}&mode={self.mode}') as resp:
                 if int(resp.status) !=  200:
@@ -603,6 +629,9 @@ class Pikanetwork():
         
         Fetch guild data of a given guild.
         """
+        global API_requests
+        API_requests += 1
+        await avoid_rate_limits()
         async with aiohttp.ClientSession() as session:
             async with session.get(f'https://stats.pika-network.net/api/clans/{guild}') as resp:
                 if int(resp.status) !=  200:
