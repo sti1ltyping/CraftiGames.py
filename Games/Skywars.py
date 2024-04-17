@@ -374,7 +374,7 @@ class Skywars:
 
         kills = await self.kills(leaderboard=False)
         deaths = await self.deaths(leaderboard=False)
-        if deaths == "0":
+        if deaths == 0:
             return int(kills)
         else:
             ratio = int(kills) / int(deaths)
@@ -385,7 +385,7 @@ class Skywars:
 
         wins = await self.wins(leaderboard=False)
         losses = await self.losses(leaderboard=False)
-        if losses == "0":
+        if losses == 0:
             return int(wins)
         else:
             ratio = int(wins) / int(losses)

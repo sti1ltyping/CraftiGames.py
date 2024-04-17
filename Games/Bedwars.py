@@ -94,7 +94,7 @@ class Bedwars:
 
         wins = await self.wins(leaderboard=False)
         losse = await self.losses(leaderboard=False)
-        if losse == "0":
+        if losse == 0:
             return int(wins)
         else:
             ratio = int(wins) / int(losse)
@@ -168,7 +168,7 @@ class Bedwars:
 
         kills = await self.kills(leaderboard=False)
         deaths = await self.deaths(leaderboard=False)
-        if deaths == "0":
+        if deaths == 0:
             return int(kills)
         else:
             ratio = int(kills) / int(deaths)
@@ -241,7 +241,7 @@ class Bedwars:
 
         final_kills = await self.final_kills(leaderboard=False)
         final_deaths = await self.final_deaths(leaderboard=False)
-        if final_deaths == "0":
+        if final_deaths == 0:
             return int(final_kills)
         else:
             ratio = int(final_kills) / int(final_deaths)
