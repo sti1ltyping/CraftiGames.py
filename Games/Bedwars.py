@@ -405,7 +405,7 @@ class Bedwars:
             return None
     
 
-    async def arrow_hit(
+    async def arrows_hit(
             self,
             value: bool = True,
             leaderboard: bool = True
