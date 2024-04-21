@@ -175,14 +175,9 @@ class Pikanetwork():
         async with aiohttp.ClientSession() as session:
             async with session.get(f'https://stats.pika-network.net/api/profile/{player}/leaderboard?type={gamemode}&interval={interval}&mode={mode}') as resp:
                 if resp.status != 200:
-                    if gamemode.lower() not in Gamemodes:
-                        raise ValueError('Invalid gamemode has been passed, please use one of the following\n-> bedwars\n-> skywars\n-> unrankedpractice\n-> rankedpractice')
-                    elif interval.lower() not in Intervals:
-                        raise ValueError('Invalid interval has been passed, please use one of the following\n-> weekly\n-> monthly\n-> yearly\n-> total')
-                    elif mode.lower() not in Modes:
-                        raise ValueError('Invalid mode has been passed, please use one of the following\n-> all_modes\n-> solo\n-> doubles\n-> triples\n-> quad')
-                    else:
-                        return None 
+                    # Raise val error if incorrect filler has been passed!
+                    # Removed because bugged!
+                    return None 
                 
                 data = await resp.json()
 
