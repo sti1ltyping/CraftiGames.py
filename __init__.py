@@ -49,22 +49,24 @@ from .Ratelimits import avoid_rate_limits
 from typing import Union
 
 
-class Pikanetwork():
+class Pikanetwork:
     """
     Pikanetwork API Wrapper
     ~~~~~~~~~~~~~~~~~~~~~~~
-
-
     A basic wrapper for the PikaNetwork's API.
     """
 
     def __init__(self):
-        self.session = aiohttp.ClientSession()
+        self.session = None
         self.cache = {}
 
+    async def __aenter__(self):
+        self.session = aiohttp.ClientSession()
+        return self
 
-    async def __session_close__(self):
-        await self.session.close()
+    async def __aexit__(self, exc_type, exc, tb):
+        if self.session:
+            await self.session.close()
 
 
     async def Profile(

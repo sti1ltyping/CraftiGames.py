@@ -29,7 +29,7 @@ import asyncio
 import json
 
 
-with open('Ratelimits/Settings.json', 'r') as settings_file:
+with open('PikaPY/Ratelimits/Settings.json', 'r') as settings_file:
     settings = json.load(settings_file)
 
     Interval: int = settings['Ratelimit']['Interval']
@@ -55,9 +55,9 @@ async def avoid_rate_limits():
     current_time = time.time()
     time_difference = current_time - last_request_time
 
-    print(f'sent API request, count: {API_requests}')
+    #print(f'sent API request, count: {API_requests}')
     if API_requests >= MAX_REQUESTS_PER_INTERVAL and time_difference <= RATE_LIMIT_INTERVAL.total_seconds():
-        print(f'MAX REQUESTS PER INTERVAL REACHED: Delayed for {delay}')
+        #print(f'MAX REQUESTS PER INTERVAL REACHED: Delayed for {delay}')
         await asyncio.sleep(delay)
 
         API_requests, last_request_time = 0, time.time()

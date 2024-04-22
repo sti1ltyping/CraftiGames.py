@@ -1,5 +1,3 @@
-# PikaPY
-
 PikaPY
 ==========
 
