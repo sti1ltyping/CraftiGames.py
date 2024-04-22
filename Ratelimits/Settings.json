@@ -1,0 +1,10 @@
+{
+    "Ratelimit": {
+
+        "Interval": 1,
+        "Request Per Interval": 12,
+
+        "Delay": 1.2
+
+    }
+}

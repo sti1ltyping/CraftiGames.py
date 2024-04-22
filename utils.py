@@ -25,6 +25,7 @@ SOFTWARE.
 import aiohttp
 import json
 import asyncio
+import time
 from datetime import (
     datetime,
     timedelta
@@ -89,19 +90,19 @@ class Gamemodes:
 
     """List of available gamemodes"""
 
-    def __str__(self):
-        return ['bedwars', 'skywars', 'unrankedpractice', 'rankedpractice']
+    def __repr__(self):
+        return str(['bedwars', 'skywars', 'unrankedpractice', 'rankedpractice'])
     
 class Intervals:
 
     """List of available intervals"""
 
-    def __str__(self):
-        return ['weekly', 'monthly', 'yearly', 'total']
-    
+    def __repr__(self):
+        return str(['weekly', 'monthly', 'yearly', 'total'])
+
 class Modes:
 
     """List of available modes"""
 
-    def __str__(self):
-        return ['ALL_MODES', 'SOLO', 'DOUBLES', 'TRIPLES', 'QUAD']
+    def __repr__(self):
+        return str(['ALL_MODES', 'SOLO', 'DOUBLES', 'TRIPLES', 'QUAD'])

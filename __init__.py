@@ -58,6 +58,15 @@ class Pikanetwork():
     A basic wrapper for the PikaNetwork's API.
     """
 
+    def __init__(self):
+        self.session = aiohttp.ClientSession()
+        self.cache = {}
+
+
+    async def __session_close__(self):
+        await self.session.close()
+
+
     async def Profile(
             self,
             player: str
@@ -106,13 +115,13 @@ class Pikanetwork():
         asyncio.run(Example(playerING='AnyPlayer'))
         """
         await avoid_rate_limits()
-        async with aiohttp.ClientSession() as session:
-            async with session.get(f'https://stats.pika-network.net/api/profile/{player}') as resp:
-                if int(resp.status) !=  200:
-                    return None
-                data = json.loads(await resp.text())
+        async with self.session.get(f'https://stats.pika-network.net/api/profile/{player}') as resp:
 
-                return Profile(data)
+            if int(resp.status) !=  200:
+                return None
+            data = json.loads(await resp.text())
+
+            return Profile(data)
             
 
     async def Stats(
@@ -172,23 +181,32 @@ class Pikanetwork():
         mode: str = mode.upper()
 
         await avoid_rate_limits()
-        async with aiohttp.ClientSession() as session:
-            async with session.get(f'https://stats.pika-network.net/api/profile/{player}/leaderboard?type={gamemode}&interval={interval}&mode={mode}') as resp:
-                if resp.status != 200:
-                    # Raise val error if incorrect filler has been passed!
-                    # Removed because bugged!
+        async with self.session.get(f'https://stats.pika-network.net/api/profile/{player}/leaderboard?type={gamemode}&interval={interval}&mode={mode}') as resp:
+            if resp.status != 200:
+                try:
+                    if gamemode not in Gamemodes():
+                        raise ValueError('Invalid gamemode has been passed')
+                    elif interval not in Intervals():
+                        raise ValueError('Invalid interval has been passed')
+                    elif mode not in Modes():
+                        raise ValueError('Invalid mode has been passed')
+                    else:
+                        return None
+                except Exception as e:
+                    print(e)
                     return None 
-                
-                data = await resp.json()
+            
+            data = await resp.json()
 
-                if gamemode == 'bedwars':
-                    return Bedwars(data)
-                elif gamemode == 'skywars':
-                    return Skywars(data)
-                elif gamemode == 'unrankedpractice':
-                    return Unrankedpractice(data)
-                elif gamemode == 'rankedpractice':
-                    return Rankedpractice(data)
+            if gamemode == 'bedwars':
+                return Bedwars(data)
+            elif gamemode == 'skywars':
+                return Skywars(data)
+            elif gamemode == 'unrankedpractice':
+                return Unrankedpractice(data)
+            elif gamemode == 'rankedpractice':
+                return Rankedpractice(data)
+
 
     async def Guild(
             self,
@@ -233,10 +251,9 @@ class Pikanetwork():
         """
 
         await avoid_rate_limits()
-        async with aiohttp.ClientSession() as session:
-            async with session.get(f'https://stats.pika-network.net/api/clans/{guild}') as resp:
-                if int(resp.status) !=  200:
-                    return None
-                
-                data = json.loads(await resp.text())
-                return GUILD(data)
+        async with self.session.get(f'https://stats.pika-network.net/api/clans/{guild}') as resp:
+            if int(resp.status) !=  200:
+                return None
+            
+            data = json.loads(await resp.text())
+            return GUILD(data)
