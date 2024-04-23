@@ -121,7 +121,7 @@ class Pikanetwork:
 
             if int(resp.status) !=  200:
                 return None
-            data = json.loads(await resp.text())
+            data = await resp.text()
 
             return Profile(data)
             

@@ -338,7 +338,7 @@ class Skywars:
         else:
             return None
                 
-    async def arrow_shot(
+    async def arrows_shot(
             self,
             value: bool = True,
             leaderboard: bool = True
