@@ -22,9 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-
 from .guilds import GUILD
-
+from datetime import datetime
 
 class Profile:
         
@@ -82,6 +81,38 @@ class Profile:
         last_seen_raw = self.data.get("lastSeen")
         last_seen = str(last_seen_raw)[:-3]
         return int(last_seen)
+    
+    async def last_seen_text(self) -> str:
+        """Returns last seen value in text format."""
+        try:
+            last_seen_timestamp = await self.last_seen()
+            last_seen_datetime = datetime.utcfromtimestamp(last_seen_timestamp)
+
+            current_datetime = datetime.utcnow()
+            time_difference = current_datetime - last_seen_datetime
+
+            if time_difference.days > 0:
+                if time_difference.days == 1:
+                    return "1 day ago"
+                else:
+                    return f"{time_difference.days} days ago"
+            elif time_difference.seconds < 60:
+                return "just now"
+            elif time_difference.seconds < 3600:
+                minutes = time_difference.seconds // 60
+                if minutes == 1:
+                    return "1 min ago"
+                else:
+                    return f"{minutes} mins ago"
+            else:
+                hours = time_difference.seconds // 3600
+                if hours == 1:
+                    return "1 hr ago"
+                else:
+                    return f"{hours} hrs ago"
+        except Exception as e:
+            print(e)
+            return 'error'
         
     async def friend_list(self) -> (list | None):
         """Return a list of player's friends. NOTE: Return None if no friends found!"""
