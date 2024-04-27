@@ -48,6 +48,9 @@ from .Ratelimits import avoid_rate_limits
 
 from typing import Union
 
+# Global batch size
+batch_size = 15
+
 
 class Pikanetwork:
     """
@@ -259,3 +262,198 @@ class Pikanetwork:
             
             data = await resp.json()
             return GUILD(data)
+
+    
+    # Batch processing 
+
+    async def StatsBatch(
+            self,
+            players: list[str],
+            gamemode: Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice],
+            interval: Union[weekly, monthly, yearly, total],
+            mode: Union[all_modes, solo, doubles, triples, quad]
+            ) -> list:
+        """
+        Fetches stats for multiple players in batches of 15.
+
+        Parameters:
+            - players (list[str]): List of player names to fetch stats for.
+            - gamemode (Union): Minigame of the stats.
+            - interval (Union): Timespan of the stats.
+            - mode (Union): Mode of the minigames.
+
+        Returns:
+            - A list of stats for all players.
+
+        Example:
+        ~~~
+        from PikaPY import Pikanetwork
+        import asyncio
+
+        async def Example(players: list[str]):
+            API = Pikanetwork()
+            stats = await API.StatsBatch(players, 'bedwars', 'weekly', 'all_modes')
+            for player_stats in stats:
+                if player_stats is not None:
+                    print(player_stats)  # Process the stats here
+
+        asyncio.run(Example(players=['Player1', 'Player2', 'Player3']))
+        """
+        
+        stats = []
+
+        for i in range(0, len(players), batch_size):
+            current_batch = players[i:i + batch_size]
+            batch_stats = await self._fetch_batch_stats(current_batch, gamemode, interval, mode)
+            stats.extend(batch_stats)
+
+        return stats
+
+    async def _fetch_batch_stats(
+            self,
+            players: list[str],
+            gamemode: Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice],
+            interval: Union[weekly, monthly, yearly, total],
+            mode: Union[all_modes, solo, doubles, triples, quad]
+            ) -> list:
+        """
+        Helper function to fetch stats for a batch of players.
+
+        Parameters:
+            - players (list[str]): List of player names to fetch stats for.
+            - gamemode (Union): Minigame of the stats.
+            - interval (Union): Timespan of the stats.
+            - mode (Union): Mode of the minigames.
+
+        Returns:
+            - A list of stats for the players in the batch.
+        """
+        batch_stats = []
+
+        async with self.session:
+            for player in players:
+                stats = await self.Stats(player, gamemode, interval, mode)
+                batch_stats.append(stats)
+                await asyncio.sleep(1)
+
+        return batch_stats
+    
+    async def ProfileBatch(
+            self,
+            players: list[str]
+            ) -> list:
+        """
+        Fetches profiles for multiple players in batches of 15.
+
+        Parameters:
+            - players (list[str]): List of player names to fetch profiles for.
+
+        Returns:
+            - A list of profiles for all players.
+
+        Example:
+        ~~~
+        from PikaPY import Pikanetwork
+        import asyncio
+
+        async def Example(players: list[str]):
+            API = Pikanetwork()
+            profiles = await API.ProfileBatch(players)
+            for profile in profiles:
+                if profile is not None:
+                    print(profile)  # Process the profile here
+
+        asyncio.run(Example(players=['Player1', 'Player2', 'Player3']))
+        """
+
+        profiles = []
+
+        for i in range(0, len(players), batch_size):
+            current_batch = players[i:i + batch_size]
+            batch_profiles = await self._fetch_batch_profiles(current_batch)
+            profiles.extend(batch_profiles)
+
+        return profiles
+
+    async def GuildBatch(
+            self,
+            guilds: list[str]
+            ) -> list:
+        """
+        Fetches guilds for multiple guild names in batches.
+
+        Parameters:
+            - guilds (list[str]): List of guild names to fetch.
+
+        Returns:
+            - A list of guilds for all guild names.
+
+        Example:
+        ~~~
+        from PikaPY import Pikanetwork
+        import asyncio
+
+        async def Example(guilds: list[str]):
+            API = Pikanetwork()
+            guilds_data = await API.GuildBatch(guilds)
+            for guild_data in guilds_data:
+                if guild_data is not None:
+                    print(guild_data)  # Process the guild data here
+
+        asyncio.run(Example(guilds=['Guild1', 'Guild2', 'Guild3']))
+        """
+
+        guilds_data = []
+
+        for i in range(0, len(guilds), batch_size):
+            current_batch = guilds[i:i + batch_size]
+            batch_guilds = await self._fetch_batch_guilds(current_batch)
+            guilds_data.extend(batch_guilds)
+
+        return guilds_data
+
+    async def _fetch_batch_profiles(
+            self,
+            players: list[str]
+            ) -> list:
+        """
+        Helper function to fetch profiles for a batch of players.
+
+        Parameters:
+            - players (list[str]): List of player names to fetch profiles for.
+
+        Returns:
+            - A list of profiles for the players in the batch.
+        """
+        batch_profiles = []
+
+        async with self.session:
+            for player in players:
+                profile = await self.Profile(player)
+                batch_profiles.append(profile)
+                await asyncio.sleep(1)  # Add a delay to avoid rate limiting
+
+        return batch_profiles
+
+    async def _fetch_batch_guilds(
+            self,
+            guilds: list[str]
+            ) -> list:
+        """
+        Helper function to fetch guilds for a batch of guild names.
+
+        Parameters:
+            - guilds (list[str]): List of guild names to fetch.
+
+        Returns:
+            - A list of guilds for the guild names in the batch.
+        """
+        batch_guilds = []
+
+        async with self.session:
+            for guild_name in guilds:
+                guild = await self.Guild(guild_name)
+                batch_guilds.append(guild)
+                await asyncio.sleep(1)  # Add a delay to avoid rate limiting
+
+        return batch_guilds
