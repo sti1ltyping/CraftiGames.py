@@ -46,6 +46,14 @@ class GUILD:
     async def level(self):
         """Returns current level of the guild.\n~~~"""
         return self.data.get("leveling",{}).get("level", None)
+    
+    async def exp(self):
+        """Returns current exp of the guild."""
+        return self.data.get("leveling",{}).get("exp", None)
+    
+    async def totalexp(self):
+        """Returns current exp of the guild."""
+        return self.data.get("leveling",{}).get("totalExp", None)
         
     async def member_list(self) -> list:
         """Returns guild members [LIST].\n~~~"""
