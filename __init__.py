@@ -46,13 +46,13 @@ from .Games.Practice import Unrankedpractice, Rankedpractice
 
 from .Ratelimits import avoid_rate_limits
 
-from ResponseError import faulty
+from .ResponseError import faulty
 
 from typing import Union
 
-# Global batch size
+# Global Limits
 batch_size = 15
-
+Allowed_Recursion = 30
 
 class Pikanetwork:
     """
@@ -136,7 +136,9 @@ class Pikanetwork:
             player: str,
             gamemode: Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice],
             interval: Union[weekly, monthly, yearly, total],
-            mode: Union[all_modes, solo, doubles, triples, quad]
+            mode: Union[all_modes, solo, doubles, triples, quad],
+            *,
+            Recursion = 0
             ) -> (Bedwars | Skywars | Unrankedpractice | Rankedpractice | None):
         """
         Stats API
@@ -205,10 +207,11 @@ class Pikanetwork:
             
             data = await resp.json()
 
-            if await faulty(data):
+            if await faulty(data) and Recursion <= Allowed_Recursion:
                 #retry
-                await self.Stats(player, gamemode, interval, mode)
-                return
+                Recursion += 1
+                print(f'faulty stats: X{Recursion}')
+                return await self.Stats(player, gamemode, interval, mode, Recursion=Recursion)
 
             if gamemode == 'bedwars':
                 return Bedwars(data)

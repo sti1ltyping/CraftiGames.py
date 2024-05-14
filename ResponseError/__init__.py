@@ -27,31 +27,33 @@ async def faulty(data: dict):
 
     """check faulty stats"""
 
-    try:
-        items = [
-            (data["Bow kills"]),
-            (data["Kills"]),
-            (data["Games played"]),
-            (data["Final deaths"]),
-            (data["Arrows shot"]),
-            (data["Highest winstreak reached"]),
-            (data["Beds destroyed"]),
-            (data["Losses"]),
-            (data["Arrows hit"]),
-            (data["Melee kills"]),
-            (data["Final kills"]),
-            (data["Deaths"]),
-            (data["Void kills"]),
-            (data["Wins"])
-        ]
+    items = [
+        (data["Bow kills"]),
+        (data["Kills"]),
+        (data["Games played"]),
+        (data["Final deaths"]),
+        (data["Arrows shot"]),
+        (data["Highest winstreak reached"]),
+        (data["Beds destroyed"]),
+        (data["Losses"]),
+        (data["Arrows hit"]),
+        (data["Melee kills"]),
+        (data["Final kills"]),
+        (data["Deaths"]),
+        (data["Void kills"]),
+        (data["Wins"])
+    ]
 
-        for (data_) in items:
+    for data_ in items:
 
-            if data_["metadata"] and data_["entries"] is None:
-                
-                return True
-            else:
-                return False
-    except Exception as e:
-        print(e)
-
+        if (
+            data_["metadata"] is None
+            ) and (
+                data_["entries"] is None
+                ):
+            
+            #print(f'Error in response\n{data}')
+            return True
+    
+    #print('Response is correct!')
+    return False
