@@ -46,6 +46,8 @@ from .Games.Practice import Unrankedpractice, Rankedpractice
 
 from .Ratelimits import avoid_rate_limits
 
+from ResponseError import faulty
+
 from typing import Union
 
 # Global batch size
@@ -203,6 +205,11 @@ class Pikanetwork:
             
             data = await resp.json()
 
+            if await faulty(data):
+                #retry
+                await self.Stats(player, gamemode, interval, mode)
+                return
+
             if gamemode == 'bedwars':
                 return Bedwars(data)
             elif gamemode == 'skywars':
@@ -263,7 +270,27 @@ class Pikanetwork:
             data = await resp.json()
             return GUILD(data)
 
-    
+    async def Leaderboard(
+            self,
+            gamemode: Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice],
+            stats: str,
+            interval: Union[weekly, monthly, yearly, total],
+            mode: Union[all_modes, solo, doubles, triples, quad],
+
+            offset: int,
+            limit: int   
+    ):
+        
+        """
+        
+        """
+        await avoid_rate_limits()
+        async with self.session.get(f'https://stats.pika-network.net/api/leaderboards?type={gamemode}&stat={stats}&interval={interval}&mode={mode}&offset={offset}&limit={limit}') as resp:
+            if int(resp.status) != 200:
+                return None
+            
+            data = await resp.json()
+
     # Batch processing 
 
     async def StatsBatch(
