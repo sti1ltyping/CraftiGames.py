@@ -2,7 +2,7 @@
     "Ratelimit": {
 
         "Interval": 1,
-        "Request Per Interval": 12,
+        "Request Per Interval": 20,
 
         "Delay": 1.2
 

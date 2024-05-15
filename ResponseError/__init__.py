@@ -23,35 +23,12 @@ SOFTWARE.
 """
 
 
-async def faulty(data: dict):
+async def faulty(data: dict) -> bool:
 
     """check faulty stats"""
 
-    items = [
-        (data["Bow kills"]),
-        (data["Kills"]),
-        (data["Games played"]),
-        (data["Final deaths"]),
-        (data["Arrows shot"]),
-        (data["Highest winstreak reached"]),
-        (data["Beds destroyed"]),
-        (data["Losses"]),
-        (data["Arrows hit"]),
-        (data["Melee kills"]),
-        (data["Final kills"]),
-        (data["Deaths"]),
-        (data["Void kills"]),
-        (data["Wins"])
-    ]
-
-    for data_ in items:
-
-        if (
-            data_["metadata"] is None
-            ) and (
-                data_["entries"] is None
-                ):
-            
+    for key, value in data.items():
+        if value["metadata"] is None and value["entries"] is None:
             #print(f'Error in response\n{data}')
             return True
     
