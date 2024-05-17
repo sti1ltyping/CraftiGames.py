@@ -52,7 +52,7 @@ from typing import Union
 
 # Global Limits
 batch_size = 15
-Allowed_Recursion = 30
+Allowed_Recursion = 40
 
 class Pikanetwork:
     """
@@ -166,20 +166,21 @@ class Pikanetwork:
 
         async def Example(playerING: str):
             
-            API = Pikanetwork()
-            player = await API.Stats(playerIGN, 'bedwars', 'weekly', 'all_modes')
-
-            if player is None:
-                return 'Player is hidden from the API'
+            async with Pikanetwork() as API:
             
-            wins = await player.wins(leaderboard=False)
-            losses, losses_leaderboard = await player.losses()
-            wlr = await player.wlr()
-            final_kills_leadeboard = await player.final_kills(value=False)
-            
-            # and many more...
+                player = await API.Stats(playerIGN, 'bedwars', 'weekly', 'all_modes')
 
-            print(wins, losses, losses_leaderboard, wlr, final_kills_leaderboard)
+                if player is None:
+                    return 'Player is hidden from the API'
+                
+                wins = await player.wins(leaderboard=False)
+                losses, losses_leaderboard = await player.losses()
+                wlr = await player.wlr()
+                final_kills_leadeboard = await player.final_kills(value=False)
+                
+                # and many more...
+
+                print(wins, losses, losses_leaderboard, wlr, final_kills_leaderboard)
         
         asyncio.run(Example(playerING='AnyPlayer'))
         """
@@ -191,6 +192,9 @@ class Pikanetwork:
 
         await avoid_rate_limits()
         async with self.session.get(f'https://stats.pika-network.net/api/profile/{player}/leaderboard?type={gamemode}&interval={interval}&mode={mode}') as resp:
+            if resp.status == 429 and Recursion <= Allowed_Recursion:
+                await asyncio.sleep(1.5)
+                return await self.Stats(player, gamemode, interval, mode, Recursion=Recursion)
             if resp.status != 200:
                 try:
                     if gamemode not in Gamemodes():
