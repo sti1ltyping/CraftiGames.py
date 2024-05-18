@@ -28,10 +28,10 @@ from datetime import timedelta
 import asyncio
 import json
 
-from _Logs import log
+from PikaPY._Logs import log
 
 
-with open('Ratelimits/Settings.json', 'r') as settings_file:
+with open('PikaPY/Ratelimits/Settings.json', 'r') as settings_file:
     settings = json.load(settings_file)
 
     Interval: int = settings['Ratelimit']['Interval']
