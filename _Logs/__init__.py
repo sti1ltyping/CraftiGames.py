@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from utils import *
+import json
 
 
 with open("PikaPY/_Logs/settings.json", "r") as file:
