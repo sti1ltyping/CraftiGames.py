@@ -22,46 +22,37 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-
-import time
-from datetime import timedelta
-import asyncio
-import json
-
-from _Logs import log
+from utils import *
 
 
-with open('Ratelimits/Settings.json', 'r') as settings_file:
-    settings = json.load(settings_file)
+with open("PikaPY/_Logs/settings.json", "r") as file:
+    data: dict = json.load(file)
 
-    Interval: int = settings['Ratelimit']['Interval']
-    MAX_REQUESTS_PER_INTERVAL: int = settings['Ratelimit']['Request Per Interval']
-
-    delay: float = settings['Ratelimit']['Delay']
+    logging = data.get("logging", False)
 
 
-RATE_LIMIT_INTERVAL = timedelta(seconds=Interval)
+async def log(
+        content: str,
+        Player: str = None,
+        Recursion: int = None
+    ) -> None:
 
-last_request_time = time.time()
-API_requests = 0
+    """logs in console"""
 
+    content = str(content)
 
-async def avoid_rate_limits():
-    """
-    Handles rate limits
-    """
-    global API_requests, last_request_time
+    if logging is False:
+        return
 
-    API_requests += 1
+    message = ""
 
-    current_time = time.time()
-    time_difference = current_time - last_request_time
+    if Player is not None:
+        message += f"{Player}, "
 
-    await log(f'sent API request, count: {API_requests}')
-    if API_requests >= MAX_REQUESTS_PER_INTERVAL and time_difference <= RATE_LIMIT_INTERVAL.total_seconds():
-        await log(f'MAX REQUESTS PER INTERVAL REACHED: Delayed for {delay}')
-        await asyncio.sleep(delay)
+    message += content
 
-        API_requests, last_request_time = 0, time.time()
+    if Recursion is not None:
+        message += f"\nRecursion: X{Recursion}"
 
-    last_request_time = current_time
+    print(message)
+    

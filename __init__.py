@@ -48,11 +48,13 @@ from .Ratelimits import avoid_rate_limits
 
 from .ResponseError import faulty
 
-from typing import Union
+from ._Logs import log
 
-# Global Limits
+from typing import Union, Literal, Coroutine
+
+
 batch_size = 15
-Allowed_Recursion = 40
+Allowed_Recursion = 100
 
 class Pikanetwork:
     """
@@ -190,31 +192,42 @@ class Pikanetwork:
         interval: str = interval.lower()
         mode: str = mode.upper()
 
-        await avoid_rate_limits()
+        #await avoid_rate_limits()
         async with self.session.get(f'https://stats.pika-network.net/api/profile/{player}/leaderboard?type={gamemode}&interval={interval}&mode={mode}') as resp:
-            if resp.status == 429 and Recursion <= Allowed_Recursion:
+            await log(resp.status)
+            status = resp.status
+            # 💢 Ratelimit
+            if status == 429 and Recursion <= Allowed_Recursion:
+                Recursion += 1
+                await log('Ratelimit, trying to fix the stats', Recursion=Recursion)
                 await asyncio.sleep(1.5)
                 return await self.Stats(player, gamemode, interval, mode, Recursion=Recursion)
-            if resp.status != 200:
+            # 👻 Hidden from API
+            elif status == 204:
+                await log('is hidden from the API!', player)
+                return None # Hidden from API
+            # ⚠️ Invalid format | Player does not exists ⚠️
+            elif status == 400:
                 try:
-                    if gamemode not in Gamemodes():
-                        raise ValueError('Invalid gamemode has been passed')
-                    elif interval not in Intervals():
-                        raise ValueError('Invalid interval has been passed')
-                    elif mode not in Modes():
-                        raise ValueError('Invalid mode has been passed')
+                    if gamemode not in Gamemodes.all():
+                        raise ValueError('⚠️ Invalid gamemode has been passed!')
+                    elif interval not in Intervals.all():
+                        raise ValueError('⚠️ Invalid interval has been passed!')
+                    elif mode not in Modes.all():
+                        raise ValueError('⚠️ Invalid mode has been passed!')
                     else:
+                        await log('does not exists!', player)
                         return None
-                except Exception as e:
-                    print(e)
+                except Exception as error:
+                    await log(f'An error occure while finding stats of {player}:\n\n' + ''.join(traceback.format_exception(type(error), error, error.__traceback__)))
                     return None 
-            
+            # ✔
             data = await resp.json()
 
             if await faulty(data) and Recursion <= Allowed_Recursion:
-                #retry
+                # Retry
                 Recursion += 1
-                print(f'faulty stats: X{Recursion}')
+                await log(f'⚠️Faulty Stats', Recursion=Recursion)
                 return await self.Stats(player, gamemode, interval, mode, Recursion=Recursion)
 
             if gamemode == 'bedwars':

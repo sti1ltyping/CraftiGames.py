@@ -30,6 +30,7 @@ from datetime import (
     datetime,
     timedelta
 )
+import traceback
 
 
 class Weekly:
@@ -89,20 +90,59 @@ class Quadriples:
 class Gamemodes:
 
     """List of available gamemodes"""
-
-    def __repr__(self):
-        return str(['bedwars', 'skywars', 'unrankedpractice', 'rankedpractice'])
+    
+    def bedwars():
+        return "bedwars"
+    
+    def skywars():
+        return "skywars"
+    
+    def unrankedpractice():
+        return "unrankedpractice"
+    
+    def rankedpractice():
+        return "rankedpractice"
+    
+    def all() -> list:
+        return ['bedwars', 'skywars', 'unrankedpractice', 'rankedpractice']
     
 class Intervals:
 
     """List of available intervals"""
-
-    def __repr__(self):
-        return str(['weekly', 'monthly', 'yearly', 'total'])
+    
+    def weekly():
+        return "weekly"
+    
+    def monthly():
+        return "monthly"
+    
+    def yearly():
+        return "yearly"
+    
+    def total():
+        return "total"
+    
+    def all() -> list:
+        return ['weekly', 'monthly', 'yearly', 'total']
 
 class Modes:
 
     """List of available modes"""
 
-    def __repr__(self):
-        return str(['ALL_MODES', 'SOLO', 'DOUBLES', 'TRIPLES', 'QUAD'])
+    def all_modes():
+        return "ALL_MODES"
+    
+    def SOLO():
+        return "SOLO"
+    
+    def doubles():
+        return "DOUBLES"
+    
+    def triples():
+        return "TRIPLES"
+    
+    def quad():
+        return "QUAD"
+    
+    def all() -> list:
+        return ['ALL_MODES', 'SOLO', 'DOUBLES', 'TRIPLES', 'QUAD']
