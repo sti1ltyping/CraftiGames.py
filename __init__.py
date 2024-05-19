@@ -116,7 +116,9 @@ class Pikanetwork:
 
     async def Profile(
             self,
-            player: str
+            player: str,
+            *,
+            Recursion = 0
             ) -> (Profile | None):
         """
         Profile API
@@ -161,14 +163,24 @@ class Pikanetwork:
         
         asyncio.run(Example(playerING='AnyPlayer'))
         """
-        await avoid_rate_limits()
+        # await avoid_rate_limits()
         async with self.session.get(f'https://stats.pika-network.net/api/profile/{player}') as resp:
-
-            if int(resp.status) !=  200:
+            status = resp.status
+            if status == 200:
+                return Profile(await resp.json())
+            # 💢 Ratelimit
+            elif status == 429 and Recursion <= Allowed_Recursion:
+                Recursion += 1
+                await log('Ratelimit, trying to fix the stats', Recursion=Recursion)
+                await imports.asyncio.sleep(1.5)
+                return await self.Profile(player)
+            # ⚠️ Invalid format | Player does not exists ⚠️
+            elif status == 400 or status == 204:
                 return None
-            data = await resp.json()
-
-            return Profile(data)
+            else:
+                await log(status)
+                return None
+            
             
 
     async def Stats(
@@ -238,7 +250,6 @@ class Pikanetwork:
 
         #await avoid_rate_limits()
         async with self.session.get(f'https://stats.pika-network.net/api/profile/{player}/leaderboard?type={gamemode}&interval={interval}&mode={mode}') as resp:
-            await log(resp.status)
             status = resp.status
             # 💢 Ratelimit
             if status == 429 and Recursion <= Allowed_Recursion:
@@ -286,7 +297,9 @@ class Pikanetwork:
 
     async def Guild(
             self,
-            guild: str
+            guild: str,
+            *,
+            Recursion = 0
             ) -> GUILD | None:
         """
         Guild API
@@ -326,13 +339,24 @@ class Pikanetwork:
         asyncio.run(Example(guild='AnyGuild'))
         """
 
-        await avoid_rate_limits()
+        # await avoid_rate_limits()
         async with self.session.get(f'https://stats.pika-network.net/api/clans/{guild}') as resp:
-            if int(resp.status) !=  200:
+            status = resp.status
+            if status == 200:
+                return GUILD(await resp.json())
+            # 💢 Ratelimit
+            elif status == 429 and Recursion <= Allowed_Recursion:
+                Recursion += 1
+                await log('Ratelimit, trying to fix the stats', Recursion=Recursion)
+                await imports.asyncio.sleep(1.5)
+                return await self.Guild(guild)
+            # ⚠️ Invalid format | Guild does not exists ⚠️
+            elif status == 400 or status == 204:
                 return None
-            
-            data = await resp.json()
-            return GUILD(data)
+            else:
+                await log(status)
+                return None
+
 
     async def Leaderboard(
             self,
@@ -358,7 +382,9 @@ class Pikanetwork:
 
     async def Punishment(
             self,
-            player
+            player: str,
+            *,
+            Recursion = 0
         ) -> (History | None):
 
         """
@@ -401,12 +427,23 @@ class Pikanetwork:
         """
 
         async with self.session.get(f'https://pika-network.net/bans/search/{player}/') as resp:
-            if resp.status != 200:
+            status = resp.status
+            if status == 200:
+                return History(await resp.text())
+            # 💢 Ratelimit
+            elif status == 429 and Recursion <= Allowed_Recursion:
+                Recursion += 1
+                await log('Ratelimit, trying to fix the stats', Recursion=Recursion)
+                await imports.asyncio.sleep(1.5)
+                return await self.Punishment(player)
+            # ⚠️ Invalid format | Guild does not exists ⚠️
+            elif status == 400 or status == 204:
+                return None
+            else:
+                await log(status)
                 return None
             
-            return History(await resp.text())
             
-
     # Batch processing 
 
     async def StatsBatch(
