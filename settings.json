@@ -1,4 +1,4 @@
 {
-    "Allowed Recursion": 120,
+    "Allowed Recursion": 50,
     "Batch size": 20
 }
