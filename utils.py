@@ -180,7 +180,7 @@ async def header() -> {imports.aiohttp.ClientSession.headers}:
     return headers
 
 
-with open("settings.json", "r") as file:
+with open("PikaPY/settings.json", "r") as file:
     data: dict = imports.json.load(file)
 
     Allowed_Recursion: int = data.get("Allowed Recursion", 30)
