@@ -30,7 +30,7 @@ class History:
 
     def __init__(self, html_) -> None:
         self.html_parser: str = html_
-        self.punishments: dict = {...}
+        self.punishments: dict = {}
 
 
     async def bans(
