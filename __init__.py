@@ -117,7 +117,7 @@ class Pikanetwork:
     async def Profile(
             self,
             player: str
-            ) -> Coroutine[Profile | None]:
+            ) -> (Profile | None):
         """
         Profile API
         ~~~~~~~~~
@@ -185,7 +185,7 @@ class Pikanetwork:
             ],
             *,
             Recursion = 0
-            ) -> Coroutine[(Bedwars | Skywars | Unrankedpractice | Rankedpractice | None)]:
+            ) -> (Bedwars | Skywars | Unrankedpractice | Rankedpractice | None):
         """
         Stats API
         ~~~~~~~~~
@@ -287,7 +287,7 @@ class Pikanetwork:
     async def Guild(
             self,
             guild: str
-            ) -> Coroutine[GUILD | None]:
+            ) -> GUILD | None:
         """
         Guild API
         ~~~~~~~~~
@@ -359,7 +359,7 @@ class Pikanetwork:
     async def Punishment(
             self,
             player
-        ) -> Coroutine[History | None]:
+        ) -> (History | None):
 
         """
         Punishment
@@ -415,7 +415,7 @@ class Pikanetwork:
             gamemode: Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice],
             interval: Union[weekly, monthly, yearly, total],
             mode: Union[all_modes, solo, doubles, triples, quad]
-            ) -> Coroutine[list[str] | None]:
+            ) -> (list[str] | None):
         """
         Fetches stats for multiple players in batches of 15.
 
