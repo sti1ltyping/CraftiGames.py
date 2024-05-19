@@ -66,7 +66,7 @@ class History:
         player = soup.title.string[:-28] if soup.title is not None else "Not found"
         punishments: dict = {}
         prow = []
-        for row in self.soup.find_all(class_='row'):
+        for row in soup.find_all(class_='row'):
             row: imports.BeautifulSoup
 
             reason = row.find(class_='_reason').text.strip()
