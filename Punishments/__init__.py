@@ -29,8 +29,7 @@ from typing import Literal
 class History:
 
     def __init__(self, html_) -> None:
-        self.html_parser: str = html_
-        self.punishments: dict = {}
+        self.__html_parser__: str = html_
 
 
     async def bans(
@@ -63,10 +62,10 @@ class History:
             punishement_type: Literal["all", "ban", "warn", "kick", "mute"] = "all"
             ) -> dict:
 
-        self.soup = imports.BeautifulSoup(self.html_parser, 'html.parser')
-        self.player = self.soup.title.string[:-28] if self.soup.title is not None else "Not found"
-        self.punishments.clear()
-        self.prow = []
+        soup = imports.BeautifulSoup(self.__html_parser__, 'html.parser')
+        player = soup.title.string[:-28] if soup.title is not None else "Not found"
+        punishments: dict = {}
+        prow = []
         for row in self.soup.find_all(class_='row'):
             row: imports.BeautifulSoup
 
@@ -82,7 +81,7 @@ class History:
             if punishement_type.lower() != 'all' and ptype.lower() != punishement_type.lower():
                 continue
 
-            self.prow.append(
+            prow.append(
                 {
                     "Reason": reason,
                     "Date": date,
@@ -91,12 +90,6 @@ class History:
                     "By": by
                 }
             )
-        self.punishments[self.player] = self.prow
+        punishments[player] = prow
 
-        return self.punishments
-
-
-    async def main(self):
-        list_console = input("List Console? [yes/no]: ")
-        ban_type = input("Type: [all, ban, warn, kick, mute]: ")
-        await self.scrape_website(list_console, ban_type)
+        return punishments
