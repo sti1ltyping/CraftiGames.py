@@ -35,14 +35,24 @@ from .utils import (
     Quadriples as quad
 )
 
-from .utils import *
+from .utils import imports
 
-from .guilds import GUILD
-from .PlayerProfile import Profile
+from .utils import (
+    Gamemodes as Gamemodes,
+    Intervals as Intervals,
+    Modes as Modes
+)
+
+from .utils import header
+
+from .Phyls.guilds import GUILD
+from .Phyls.PlayerProfile import Profile
 
 from .Games.Bedwars import Bedwars
 from .Games.Skywars import Skywars
 from .Games.Practice import Unrankedpractice, Rankedpractice
+
+from .Punishments import History
 
 from .Ratelimits import avoid_rate_limits
 
@@ -50,25 +60,53 @@ from .ResponseError import faulty
 
 from ._Logs import log
 
-from typing import Union, Literal, Coroutine
+from .utils import (
+    Allowed_Recursion,
+    batch_size
+)
 
-
-batch_size = 15
-Allowed_Recursion = 100
+from typing import (
+    Union, Literal, Coroutine
+)
 
 class Pikanetwork:
     """
     Pikanetwork API Wrapper
     ~~~~~~~~~~~~~~~~~~~~~~~
     A basic wrapper for the PikaNetwork's API.
+
+    =============================
+
+
+    MIT License
+
+    Copyright (c) 2024 Sti1lTyping
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.session = None
-        self.cache = {}
+        self.cache = {...}
 
     async def __aenter__(self):
-        self.session = aiohttp.ClientSession()
+        self.session = imports.aiohttp.ClientSession(headers = await header())
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
@@ -79,7 +117,7 @@ class Pikanetwork:
     async def Profile(
             self,
             player: str
-            ) -> (Profile | None):
+            ) -> Coroutine[Profile | None]:
         """
         Profile API
         ~~~~~~~~~
@@ -136,12 +174,18 @@ class Pikanetwork:
     async def Stats(
             self,
             player: str,
-            gamemode: Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice],
-            interval: Union[weekly, monthly, yearly, total],
-            mode: Union[all_modes, solo, doubles, triples, quad],
+            gamemode: Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice,
+                      Literal["bedwars", "skywars", "unrankedpractice", "rankedpractice"]
+            ],
+            interval: Union[weekly, monthly, yearly, total,
+                      Literal["weekly", "monthly", "yearly", "total"]
+            ],
+            mode: Union[all_modes, solo, doubles, triples, quad,
+                  Literal["all_modes", "solo", "doubles", "triples", "quad"]
+            ],
             *,
             Recursion = 0
-            ) -> (Bedwars | Skywars | Unrankedpractice | Rankedpractice | None):
+            ) -> Coroutine[(Bedwars | Skywars | Unrankedpractice | Rankedpractice | None)]:
         """
         Stats API
         ~~~~~~~~~
@@ -200,7 +244,7 @@ class Pikanetwork:
             if status == 429 and Recursion <= Allowed_Recursion:
                 Recursion += 1
                 await log('Ratelimit, trying to fix the stats', Recursion=Recursion)
-                await asyncio.sleep(1.5)
+                await imports.asyncio.sleep(1.5)
                 return await self.Stats(player, gamemode, interval, mode, Recursion=Recursion)
             # 👻 Hidden from API
             elif status == 204:
@@ -219,7 +263,7 @@ class Pikanetwork:
                         await log('does not exists!', player)
                         return None
                 except Exception as error:
-                    await log(f'An error occure while finding stats of {player}:\n\n' + ''.join(traceback.format_exception(type(error), error, error.__traceback__)))
+                    await log(f'An error occure while finding stats of {player}:\n\n' + ''.join(imports.traceback.format_exception(type(error), error, error.__traceback__)))
                     return None 
             # ✔
             data = await resp.json()
@@ -227,7 +271,7 @@ class Pikanetwork:
             if await faulty(data) and Recursion <= Allowed_Recursion:
                 # Retry
                 Recursion += 1
-                await log(f'⚠️Faulty Stats', Recursion=Recursion)
+                await log(f'!!---Faulty Stats---!!', Recursion=Recursion)
                 return await self.Stats(player, gamemode, interval, mode, Recursion=Recursion)
 
             if gamemode == 'bedwars':
@@ -243,7 +287,7 @@ class Pikanetwork:
     async def Guild(
             self,
             guild: str
-            ) -> (GUILD | None):
+            ) -> Coroutine[GUILD | None]:
         """
         Guild API
         ~~~~~~~~~
@@ -306,10 +350,62 @@ class Pikanetwork:
         """
         await avoid_rate_limits()
         async with self.session.get(f'https://stats.pika-network.net/api/leaderboards?type={gamemode}&stat={stats}&interval={interval}&mode={mode}&offset={offset}&limit={limit}') as resp:
-            if int(resp.status) != 200:
+            if resp.status != 200:
                 return None
             
             data = await resp.json()
+
+
+    async def Punishment(
+            self,
+            player
+        ) -> Coroutine[History | None]:
+
+        """
+        Punishment
+        ~~~~~~~~~
+
+        Parameters:
+            - player (str): Ingame name of the player.
+            
+            Returns:
+            - If player is found returns minigame.
+            - Returns None if unable to find player.
+
+            Raise:
+            - Error if gamemode, interval or mode is invalid.
+        
+        Example
+        ~~~~~~
+
+        ~~~
+        from PikaPY import Pikanetwork
+        import asyncio
+
+        async def Example(player: str):
+            
+            async with Pikanetwork() as API:
+            
+                punishment = await API.Punishment(player)
+
+                if punishment is None:
+                    return '404'
+                
+                warnings = await punishment.warns()
+                
+                # and many more...
+
+                print(wins, losses, losses_leaderboard, wlr, final_kills_leaderboard)
+        
+        asyncio.run(Example(player='AnyPlayer'))
+        """
+
+        async with self.session.get(f'https://pika-network.net/bans/search/{player}/') as resp:
+            if resp.status != 200:
+                return None
+            
+            return History(await resp.text())
+            
 
     # Batch processing 
 
@@ -319,7 +415,7 @@ class Pikanetwork:
             gamemode: Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice],
             interval: Union[weekly, monthly, yearly, total],
             mode: Union[all_modes, solo, doubles, triples, quad]
-            ) -> list:
+            ) -> Coroutine[list[str] | None]:
         """
         Fetches stats for multiple players in batches of 15.
 
@@ -346,7 +442,6 @@ class Pikanetwork:
 
         asyncio.run(Example(players=['Player1', 'Player2', 'Player3']))
         """
-        batch_size = 15
         stats = []
 
         for i in range(0, len(players), batch_size):
@@ -381,6 +476,6 @@ class Pikanetwork:
             for player in players:
                 stats = await self.Stats(player, gamemode, interval, mode)
                 batch_stats.append(stats)
-                await asyncio.sleep(1)
+                await imports.asyncio.sleep(1)
 
         return batch_stats

@@ -22,15 +22,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import aiohttp
-import json
-import asyncio
-import time
-from datetime import (
-    datetime,
-    timedelta
-)
-import traceback
+class imports:
+    import aiohttp
+    import json
+    import asyncio
+    import time
+    from datetime import (
+        datetime,
+        timedelta
+    )
+    from bs4 import BeautifulSoup
+    import traceback
+    import random
 
 
 class Weekly:
@@ -146,3 +149,43 @@ class Modes:
     
     def all() -> list:
         return ['ALL_MODES', 'SOLO', 'DOUBLES', 'TRIPLES', 'QUAD']
+    
+
+    
+
+user_agents = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Firefox/97.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:97.0) Gecko/20100101 Firefox/97.0',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/97.0.1072.62 Safari/537.36'
+]
+
+device_ids = [
+    '0123456789abcdef',
+    '9876543210abcdef',
+    'abcdef0123456789',
+    '1234567890abcdef',
+    '4567890123abcdef'
+]
+
+
+async def header() -> {imports.aiohttp.ClientSession.headers}:
+
+    headers = {
+            'User-Agent': imports.random.choice(user_agents),
+            'Device-Id': imports.random.choice(device_ids)
+        }
+    
+    return headers
+
+
+with open("settings.json", "r") as file:
+    data: dict = imports.json.load(file)
+
+    Allowed_Recursion: int = data.get("Allowed Recursion", 30)
+    batch_size: int = data.get("Batch size", 10)
+
+
+if __name__ == '__main__':
+    imports.asyncio.run(header())
