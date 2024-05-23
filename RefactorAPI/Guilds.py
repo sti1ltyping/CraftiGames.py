@@ -22,13 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-
 from PikaPY.utils import imports # type: ignore
 
-
-class History:
+class Guild:
     """
-    Wraps Punishment History
+    Wraps guild API
     ~~~~~
 
     ==================================================================================================
@@ -53,70 +51,78 @@ class History:
     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE."""
+    SOFTWARE.
+    """
+        
+    def __init__(self, data):
+        self.data: dict = data
 
-    def __init__(self, html_) -> None:
-        self.__html_parser__: str = html_
-
-
-    async def bans(
-            self,
-            list_console: bool = True
-            ) -> dict:
-        return await self.all(list_console, "ban")
+    async def name(self) -> str:
+        """
+        Returns:
+        - Guild's name.
+        """
+        return self.data.get("name", None)
+        
+    async def tag(self) -> str:
+        """
+        Returns:
+        - Guild's tag.
+        """
+        return self.data.get("tag", None)
+        
+    async def leader(self) -> str:
+        """
+        Returns:
+        - Guild's leader's username.
+        """
+        return self.data.get("owner", {}).get("username", None)
+        
+    async def level(self) -> int:
+        """
+        Returns:
+        - Guild's level.
+        """
+        return int(self.data.get("leveling",{}).get("level", 0))
     
-    async def warns(
-            self,
-            list_console: bool = True
-            ) -> dict:
-        return await self.all(list_console, "warn")
+    async def exp(self) -> int:
+        """
+        Returns:
+        - Guild's exp.
+        """
+        return int(self.data.get("leveling",{}).get("exp", 0))
     
-    async def kicks(
-            self,
-            list_console: bool = True
-            ) -> dict:
-        return await self.all(list_console, "kick")
+    async def totalexp(self) -> int:
+        """
+        Returns:
+        - Guild's total exp.
+        """
+        return int(self.data.get("leveling",{}).get("totalExp", 0))
+        
+    async def member_list(self) -> list:
+        """
+        Returns:
+        - Guild member's list.
+        """    
+        return [username["user"]["username"] for username in self.data.get("members", [])]
+        
+    async def member_count(self) -> int:
+        """
+        Returns:
+        - Member count of the guild.
+        """
+        return len(await self.member_list())
     
-    async def mutes(
-            self,
-            list_console: bool = True
-            ) -> dict:
-        return await self.all(list_console, "mute")
-
-    async def all(
-            self, 
-            list_console: bool = True,
-            punishement_type: imports.Literal["all", "ban", "warn", "kick", "mute"] = "all"
-            ) -> dict:
-
-        soup = imports.BeautifulSoup(self.__html_parser__, 'html.parser')
-        player = soup.title.string[:-28] if soup.title is not None else "Not found"
-        punishments: dict = {}
-        prow = []
-        for row in soup.find_all(class_='row'):
-            row: imports.BeautifulSoup
-
-            reason = row.find(class_='_reason').text.strip()
-            date = row.find(class_='_date').text.strip()
-            expires = row.find(class_='_expires').text.strip()
-            ptype = row.find(class_='_type').find('b').text.strip()
-            by = row.find(class_='user-link').text.strip()
-            
-            if list_console is False and by.lower() == 'console':
-                continue
-            
-            if punishement_type.lower() != 'all' and ptype.lower() != punishement_type.lower():
-                continue
-
-            prow.append(
-                {
-                    "Reason": reason,
-                    "Date": date,
-                    "Expires": expires,
-                    "Type": ptype,
-                    "By": by
-                }
-            )
-        punishments[player] = prow
-
-        return punishments
+    async def created_at(self) -> int:
+        """
+        Returns:
+        - Discord timestamp int of guild's creation date.
+        """
+        return int(imports.datetime.timestamp(imports.datetime.fromisoformat(self.data.get('creationTime', 0))))
+    
+    async def raw(self) -> dict:
+        """
+        Returns:
+        - Raw data.
+        """
+        return self.data

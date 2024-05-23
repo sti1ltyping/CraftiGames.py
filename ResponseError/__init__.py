@@ -29,8 +29,6 @@ async def faulty(data: dict) -> bool:
 
     for key, value in data.items():
         if value["metadata"] is None and value["entries"] is None:
-            #print(f'Error in response\n{data}')
             return True
     
-    #print('Response is correct!')
     return False

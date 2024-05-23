@@ -22,37 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import json
-
-
-with open("PikaPY/_Logs/settings.json", "r") as file:
-    data: dict = json.load(file)
-
-    logging = data.get("logging", False)
+from PikaPY.utils import logging # type: ignore
 
 
 async def log(
-        content: str,
-        Player: str = None,
-        Recursion: int = None
+        *content: object
     ) -> None:
 
     """logs in console"""
 
-    content = str(content)
-
     if logging is False:
         return
 
-    message = ""
-
-    if Player is not None:
-        message += f"{Player}, "
-
-    message += content
-
-    if Recursion is not None:
-        message += f"\nRecursion: X{Recursion}"
-
-    print(message)
-    
+    print(' '.join(map(str, content)))

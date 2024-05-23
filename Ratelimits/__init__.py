@@ -23,23 +23,18 @@ SOFTWARE.
 """
 
 
-from PikaPY._Logs import log # type: ignore
-from PikaPY.utils import imports # type: ignore
-
-with open('PikaPY/Ratelimits/Settings.json', 'r') as settings_file:
-    settings = imports.json.load(settings_file)
-
-    Interval: int = settings['Ratelimit']['Interval']
-    MAX_REQUESTS_PER_INTERVAL: int = settings['Ratelimit']['Request Per Interval']
-
-    delay: float = settings['Ratelimit']['Delay']
-
+from PikaPY.__Logger__ import log  # type: ignore
+from PikaPY.utils import imports  # type: ignore
+from PikaPY.utils import (  # type: ignore
+    Interval,
+    MAX_REQUESTS_PER_INTERVAL,
+    delay
+)
 
 RATE_LIMIT_INTERVAL = imports.timedelta(seconds=Interval)
 
 last_request_time = imports.time.time()
 API_requests = 0
-
 
 async def avoid_rate_limits():
     """
@@ -47,16 +42,17 @@ async def avoid_rate_limits():
     """
     global API_requests, last_request_time
 
-    API_requests += 1
-
     current_time = imports.time.time()
     time_difference = current_time - last_request_time
 
-    await log(f'sent API request, count: {API_requests}')
-    if API_requests >= MAX_REQUESTS_PER_INTERVAL and time_difference <= RATE_LIMIT_INTERVAL.total_seconds():
-        await log(f'MAX REQUESTS PER INTERVAL REACHED: Delayed for {delay}')
+    if time_difference > RATE_LIMIT_INTERVAL.total_seconds():
+        API_requests = 0
+        last_request_time = current_time
+
+    API_requests += 1
+
+    if API_requests > MAX_REQUESTS_PER_INTERVAL:
+        imports.asyncio.create_task(log('Max request per interval reached: Delayed for', delay))
         await imports.asyncio.sleep(delay)
-
-        API_requests, last_request_time = 0, imports.time.time()
-
-    last_request_time = current_time
+        API_requests = 0
+        last_request_time = imports.time.time()

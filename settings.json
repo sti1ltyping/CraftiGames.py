@@ -1,4 +1,22 @@
 {
+    "Logging": false,
     "Allowed Recursion": 50,
-    "Batch size": 20
+    "Batch size": 25,
+
+    "Skins": {
+        "Default": [
+            "XSteve"
+        ]
+    },
+
+    "Ratelimit": {
+        "Delay After Exceeding Ratelimit": 1.5,
+        "Delay Between Batches": 1,
+
+        "Interval": 1,
+        "Request Per Interval": 25,
+        
+        "Delay": 1
+
+    }
 }

@@ -23,16 +23,16 @@ SOFTWARE.
 """
 
 from .utils import (
-    Weekly as weekly,
-    Monthly as monthly,
-    Yearly as yearly,
-    Total as total,
+    Weekly as Weekly,
+    Monthly as Monthly,
+    Yearly as Yearly,
+    Total as Total,
     
-    All_Modes as all_modes,
-    Solo as solo,
-    Doubles as doubles,
-    Triples as triples,
-    Quadriples as quad
+    All_Modes as All_Modes,
+    Solo as Solo,
+    Doubles as Doubles,
+    Triples as Triples,
+    Quadriples as Quadriples
 )
 
 from .utils import imports
@@ -45,8 +45,9 @@ from .utils import (
 
 from .utils import header
 
-from .Phyls.guilds import GUILD
-from .Phyls.PlayerProfile import Profile
+from .RefactorAPI.Guilds import Guild
+from .RefactorAPI.Profiles import Profile
+from .RefactorAPI.Leaderboard import Sort
 
 from .Games.Bedwars import Bedwars
 from .Games.Skywars import Skywars
@@ -58,16 +59,35 @@ from .Ratelimits import avoid_rate_limits
 
 from .ResponseError import faulty
 
-from ._Logs import log
+from .__Logger__ import log
 
 from .utils import (
     Allowed_Recursion,
-    batch_size
+    batch_size,
+    batch_delay,
+    delay_after_exceeding_ratelimit
 )
 
+from .utils import Check
+
 from typing import (
-    Union, Literal, Coroutine
+    Union, Literal, List
 )
+
+
+class PikaAnnotations:
+    """
+    Helper class
+    ~~~~~~~~
+    =============
+
+    - Represents `TypeAnnotation` for this API wrapper.
+    """
+    Stats = Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice]
+    Profile = Profile
+    Guild = Guild
+    Punishments = History
+
 
 class Pikanetwork:
     """
@@ -76,7 +96,6 @@ class Pikanetwork:
     A basic wrapper for the PikaNetwork's API.
 
     =============================
-
 
     MIT License
 
@@ -113,13 +132,27 @@ class Pikanetwork:
         if self.session:
             await self.session.close()
 
+    
+    class PikaAnnotations:
+        """
+        Helper class
+        ~~~~~~~~
+        =============
+
+        - Represents `TypeAnnotation` for this API wrapper.
+        """
+        Stats = Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice]
+        Profile = Profile
+        Guild = Guild
+        Punishments = History
+
 
     async def Profile(
             self,
             player: str,
             *,
             Recursion = 0
-            ) -> (Profile | None):
+            ) -> Union[Profile, None]:
         """
         Profile API
         ~~~~~~~~~
@@ -163,41 +196,37 @@ class Pikanetwork:
         
         asyncio.run(Example(playerING='AnyPlayer'))
         """
-        # await avoid_rate_limits()
+        await avoid_rate_limits()
         async with self.session.get(f'https://stats.pika-network.net/api/profile/{player}') as resp:
+
             status = resp.status
+
             if status == 200:
-                return Profile(await resp.json())
-            # 💢 Ratelimit
+                return Profile(await resp.json(), session=self.session)
+
             elif status == 429 and Recursion <= Allowed_Recursion:
                 Recursion += 1
-                await log('Ratelimit, trying to fix the stats', Recursion=Recursion)
-                await imports.asyncio.sleep(1.5)
+                imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Profile(player)
-            # ⚠️ Invalid format | Player does not exists ⚠️
+
             elif status == 400 or status == 204:
                 return None
+            
             else:
-                await log(status)
+                imports.asyncio.create_task(log(status, ' error!'))
                 return None
-            
-            
+   
 
     async def Stats(
             self,
             player: str,
-            gamemode: Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice,
-                      Literal["bedwars", "skywars", "unrankedpractice", "rankedpractice"]
-            ],
-            interval: Union[weekly, monthly, yearly, total,
-                      Literal["weekly", "monthly", "yearly", "total"]
-            ],
-            mode: Union[all_modes, solo, doubles, triples, quad,
-                  Literal["all_modes", "solo", "doubles", "triples", "quad"]
-            ],
+            gamemode: Literal["bedwars", "skywars", "unrankedpractice", "rankedpractice"],
+            interval: Literal["weekly", "monthly", "yearly", "total"],
+            mode: Literal["all_modes", "solo", "doubles", "triples", "quad"],
             *,
             Recursion = 0
-            ) -> (Bedwars | Skywars | Unrankedpractice | Rankedpractice | None):
+            ) -> Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice, None]:
         """
         Stats API
         ~~~~~~~~~
@@ -242,47 +271,36 @@ class Pikanetwork:
         
         asyncio.run(Example(playerING='AnyPlayer'))
         """
-
-        player: str = player
+        player = str(player)
         gamemode: str = gamemode.lower()
         interval: str = interval.lower()
         mode: str = mode.upper()
 
-        #await avoid_rate_limits()
+        Check().__stats_input__(gamemode, interval, mode)
+
+        await avoid_rate_limits()
         async with self.session.get(f'https://stats.pika-network.net/api/profile/{player}/leaderboard?type={gamemode}&interval={interval}&mode={mode}') as resp:
+
             status = resp.status
-            # 💢 Ratelimit
+
             if status == 429 and Recursion <= Allowed_Recursion:
                 Recursion += 1
-                await log('Ratelimit, trying to fix the stats', Recursion=Recursion)
-                await imports.asyncio.sleep(1.5)
+                imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Stats(player, gamemode, interval, mode, Recursion=Recursion)
-            # 👻 Hidden from API
+            
             elif status == 204:
-                await log('is hidden from the API!', player)
-                return None # Hidden from API
-            # ⚠️ Invalid format | Player does not exists ⚠️
+                imports.asyncio.create_task(log(player, ' is hidden from the API!'))
+                return None
+
             elif status == 400:
-                try:
-                    if gamemode not in Gamemodes.all():
-                        raise ValueError('⚠️ Invalid gamemode has been passed!')
-                    elif interval not in Intervals.all():
-                        raise ValueError('⚠️ Invalid interval has been passed!')
-                    elif mode not in Modes.all():
-                        raise ValueError('⚠️ Invalid mode has been passed!')
-                    else:
-                        await log('does not exists!', player)
-                        return None
-                except Exception as error:
-                    await log(f'An error occure while finding stats of {player}:\n\n' + ''.join(imports.traceback.format_exception(type(error), error, error.__traceback__)))
-                    return None 
-            # ✔
+                return None
+
             data = await resp.json()
 
             if await faulty(data) and Recursion <= Allowed_Recursion:
-                # Retry
                 Recursion += 1
-                await log(f'!!---Faulty Stats---!!', Recursion=Recursion)
+                imports.asyncio.create_task(log('Faulty Stats detected: ', Recursion))
                 return await self.Stats(player, gamemode, interval, mode, Recursion=Recursion)
 
             if gamemode == 'bedwars':
@@ -300,7 +318,7 @@ class Pikanetwork:
             guild: str,
             *,
             Recursion = 0
-            ) -> GUILD | None:
+            ) -> Union[Guild, None]:
         """
         Guild API
         ~~~~~~~~~
@@ -339,45 +357,86 @@ class Pikanetwork:
         asyncio.run(Example(guild='AnyGuild'))
         """
 
-        # await avoid_rate_limits()
+        await avoid_rate_limits()
         async with self.session.get(f'https://stats.pika-network.net/api/clans/{guild}') as resp:
+
             status = resp.status
+
             if status == 200:
-                return GUILD(await resp.json())
-            # 💢 Ratelimit
+                return Guild(await resp.json())
+            
             elif status == 429 and Recursion <= Allowed_Recursion:
                 Recursion += 1
-                await log('Ratelimit, trying to fix the stats', Recursion=Recursion)
-                await imports.asyncio.sleep(1.5)
+                imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Guild(guild)
-            # ⚠️ Invalid format | Guild does not exists ⚠️
+            
+            elif status == 400 or status == 204:
+                return None
+            
+            else:
+                imports.asyncio.create_task(log(status, ' error!'))
+                return None
+
+
+    async def __leaderboard__helper__(
+            self,
+            gamemode,
+            stats,
+            interval,
+            mode,
+            offset: int,
+            limit: int,
+            *,
+            Recursion = 0
+        ) -> Union[dict, None]:
+
+        await avoid_rate_limits()
+        async with self.session.get(f'https://stats.pika-network.net/api/leaderboards?type={gamemode}&stat={stats}&interval={interval}&mode={mode}&offset={offset}&limit={limit}') as resp:
+            status = resp.status
+            if status == 200:
+                return await resp.json()
+            elif status == 429 and Recursion <= Allowed_Recursion:
+                Recursion += 1
+                imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
+                return await self.__leaderboard__helper__(gamemode, stats, interval, mode, offset, limit, Recursion=Recursion)
             elif status == 400 or status == 204:
                 return None
             else:
-                await log(status)
+                imports.asyncio.create_task(log(status, ' error!'))
                 return None
-
 
     async def Leaderboard(
             self,
-            gamemode: Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice],
-            stats: str,
-            interval: Union[weekly, monthly, yearly, total],
-            mode: Union[all_modes, solo, doubles, triples, quad],
+            gamemode: Literal["bedwars", "skywars", "unrankedpractice", "rankedpractice"],
+            interval: Literal["weekly", "monthly", "yearly", "total"],
+            mode: Literal["all_modes", "solo", "doubles", "triples", "quad"],
+            stats: Literal['wins', 'losses', 'kills', 'deaths', 'final_kills', 'final_deaths', 'bed_destroyed', 'melee_kills', 'void_kills', 'bow_kills', 'arrows_hit', 'arrows_shot', 'played', 'highest_win_streak', 'elo''projectile_kills', 'melee_dealt', 'melee_taken']
+        ) -> list[dict]:
+        
+        """
+        Leaderboard API
+        ~~~~~~~~~~
 
-            offset: int,
-            limit: int   
-    ):
-        
-        """
-        
-        """
-        await avoid_rate_limits()
-        async with self.session.get(f'https://stats.pika-network.net/api/leaderboards?type={gamemode}&stat={stats}&interval={interval}&mode={mode}&offset={offset}&limit={limit}') as resp:
-            if resp.status != 200:
-                return None
+        Parameters:
+            - gamemode: minigame of the stats.
+            - interval: Timespan of the stats.
+            - mode: mode of the minigames.
+            - stats: type of leaderboard you want.
             
-            data = await resp.json()
+            Returns:
+            - List
+        
+        """
+        Check().__leaderboard_input__(gamemode, interval, mode, stats)
+        Leaderboard_ = []
+        offset = 0
+        for k in range(0, 14):
+            Leaderboard_.append(self.__leaderboard__helper__(gamemode, stats, interval, mode, offset, 25))
+            offset += 25
+
+        return Sort(await imports.asyncio.gather(*[task for task in Leaderboard_])).__Leaderboard__()
 
 
     async def Punishment(
@@ -385,7 +444,7 @@ class Pikanetwork:
             player: str,
             *,
             Recursion = 0
-        ) -> (History | None):
+        ) -> Union[History, None]:
 
         """
         Punishment
@@ -425,94 +484,237 @@ class Pikanetwork:
         
         asyncio.run(Example(player='AnyPlayer'))
         """
-
+        await avoid_rate_limits()
         async with self.session.get(f'https://pika-network.net/bans/search/{player}/') as resp:
+
             status = resp.status
+
             if status == 200:
                 return History(await resp.text())
-            # 💢 Ratelimit
+            
             elif status == 429 and Recursion <= Allowed_Recursion:
                 Recursion += 1
-                await log('Ratelimit, trying to fix the stats', Recursion=Recursion)
-                await imports.asyncio.sleep(1.5)
+                imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Punishment(player)
-            # ⚠️ Invalid format | Guild does not exists ⚠️
+            
             elif status == 400 or status == 204:
                 return None
+            
             else:
-                await log(status)
+                imports.asyncio.create_task(log(status, ' error!'))
                 return None
             
-            
-    # Batch processing 
 
-    async def StatsBatch(
+    # MultiProcessings
+    
+    async def MultiProfile(
             self,
-            players: list[str],
-            gamemode: Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice],
-            interval: Union[weekly, monthly, yearly, total],
-            mode: Union[all_modes, solo, doubles, triples, quad]
-            ) -> (list[str] | None):
+            api: 'Pikanetwork',
+            players: List[str],
+            ) -> list['Profile']:
         """
-        Fetches stats for multiple players in batches of 15.
+        Multiple Profiles
+        ~~~~~~~~~~~~~~
 
         Parameters:
-            - players (list[str]): List of player names to fetch stats for.
-            - gamemode (Union): Minigame of the stats.
-            - interval (Union): Timespan of the stats.
-            - mode (Union): Mode of the minigames.
-
+            - api: Instance of Pikanetwork class
+            - players: List of players.
+            
         Returns:
-            - A list of stats for all players.
+            - An array of players usernames and profile, it can further be used to extract specific items from profile.
+            - Profile is None for any players that are not registered on PikaNetwork.
+        
+        Example
+        ~~~~~~
 
-        Example:
         ~~~
+        import PikaPY
         from PikaPY import Pikanetwork
+
         import asyncio
 
-        async def Example(players: list[str]):
-            API = Pikanetwork()
-            stats = await API.StatsBatch(players, 'bedwars', 'weekly', 'all_modes')
-            for player_stats in stats:
-                if player_stats is not None:
-                    print(player_stats)  # Process the stats here
 
-        asyncio.run(Example(players=['Player1', 'Player2', 'Player3']))
+        async def main(Player: str) -> None:
+            
+            async with Pikanetwork as api:
+                
+                player = await api.Profile(Player)
+                if player is None:
+                    return print(Player, 'is not registered on PikaNetwork.')
+                
+                friends = await player.friend_list()
+                if friends is None:
+                    return print(Player, 'has no friends'.)
+
+                member_stats = await api.MultiProfile(api, friends)
+
+                for member, stats in member_stats:
+                    profile: PikaPY.Games.Bedwars.Bedwars
+
+                    level = await profile.level()
+                    rank = await profile.highest_minigame_rank()
+                    print(member, level, rank)
+
+                    
+        asyncio.run(main('AnyPlayer'))
+        """
+        profile = []
+
+        for i in range(0, len(players), batch_size):
+            batch_members = players[i:i + batch_size]
+            batch_member_stats = await imports.asyncio.gather(*(api.Profile(member) for member in batch_members))
+            for member, member_stats in zip(batch_members, batch_member_stats):
+                if member_stats is None:
+                    profile.append((member, None))
+                    continue
+
+                profile.append((member, member_stats))
+
+            await imports.asyncio.sleep(batch_delay)
+
+        return profile
+    
+
+    async def MultiStats(
+            self,
+            api: 'Pikanetwork',
+            players: List[str],
+            gamemode: Literal["bedwars", "skywars", "unrankedpractice", "rankedpractice"],
+            interval: Literal["weekly", "monthly", "yearly", "total"],
+            mode: Literal["all_modes", "solo", "doubles", "triples", "quad"]
+            ) -> Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice]:
+        """
+        Multiple stats
+        ~~~~~~~~~~~~~~
+
+        Parameters:
+            - api: Instance of Pikanetwork class
+            - players: List of players.
+            - gamemode: Minigame of the stats.
+            - interval: Timespan of the stats.
+            - mode: Mode of the minigames.
+            
+        Returns:
+            - An array of players usernames and stats (Games class), it can further be used to extract specific stats.
+            - stats (Games class) is None for the players hidden from the API.
+        
+        Example
+        ~~~~~~
+
+        ~~~
+        import PikaPY
+        from PikaPY import Pikanetwork
+
+        import asyncio
+
+
+        async def main(Player: str) -> None:
+            
+            async with Pikanetwork as api:
+                
+                player = await api.Profile(Player)
+                if player is None:
+                    return print(Player, 'is not registered on PikaNetwork.')
+                
+                guild = await player.guild()
+                if guild is None:
+                    return print(Player, 'is not in a guild'.)
+
+                members = await guild.member_list()
+
+                member_stats = await api.MultiStats(api, members, 'bedwars', 'total', 'all_modes')
+
+                for member, stats in member_stats:
+                    stats: PikaPY.Games.Bedwars.Bedwars
+
+                    if stats is None:
+                        print(member, 'is hidden from the API.')
+                        continue
+                    wins = await stats.wins(leaderboard=False)
+                    print(member, wins)
+
+                    
+        asyncio.run(main('AnyPlayer'))
         """
         stats = []
 
         for i in range(0, len(players), batch_size):
-            current_batch = players[i:i + batch_size]
-            batch_stats = await self._fetch_batch_stats(current_batch, gamemode, interval, mode)
-            stats.extend(batch_stats)
+            batch_members = players[i:i + batch_size]
+            batch_member_stats = await imports.asyncio.gather(*(api.Stats(member, gamemode, interval, mode) for member in batch_members))
+            for member, member_stats in zip(batch_members, batch_member_stats):
+                if member_stats is None:
+                    stats.append((member, None))
+                    continue
+
+                stats.append((member, member_stats))
+
+            await imports.asyncio.sleep(batch_delay)
 
         return stats
+    
 
-    async def _fetch_batch_stats(
+    async def MultiGuilds(
             self,
-            players: list[str],
-            gamemode: Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice],
-            interval: Union[weekly, monthly, yearly, total],
-            mode: Union[all_modes, solo, doubles, triples, quad]
-            ) -> list:
+            api: 'Pikanetwork',
+            guilds: List[str],
+            ) -> 'Guild':
         """
-        Helper function to fetch stats for a batch of players.
+        Multiple Guilds
+        ~~~~~~~~~~~~~~
 
         Parameters:
-            - players (list[str]): List of player names to fetch stats for.
-            - gamemode (Union): Minigame of the stats.
-            - interval (Union): Timespan of the stats.
-            - mode (Union): Mode of the minigames.
-
+            - api: Instance of Pikanetwork class
+            - guilds: List of guilds.
+            
         Returns:
-            - A list of stats for the players in the batch.
+            - An array of guild's usernames and guild class, it can further be used to extract specific items from the guild class.
+            - Guild is None for any invalid guild.
+        
+        Example
+        ~~~~~~
+
+        ~~~
+        import PikaPY
+        from PikaPY import Pikanetwork
+
+        import asyncio
+
+
+        async def main() -> None:
+            
+            async with Pikanetwork as api:
+                
+                # These are just for example they may not exists for real!
+                guilds = ['Winds', 'Champs', 'Apples', 'PikaUwU'] 
+
+                guilds_infos = await MultiGuilds(api, guilds)
+
+                for guild, guild_api in guilds_infos:
+                    
+                    if guild_api is None:
+                        continue # skips the invalid guild.
+                        
+                    owner = await guild_api.leader()
+                    level = await guild_api.level()
+
+                    print(guild, owner, level)
+
+                    
+        asyncio.run(main())
         """
-        batch_stats = []
+        guilds_ = []
 
-        async with self.session:
-            for player in players:
-                stats = await self.Stats(player, gamemode, interval, mode)
-                batch_stats.append(stats)
-                await imports.asyncio.sleep(1)
+        for i in range(0, len(guilds), batch_size):
+            batch_guilds = guilds[i:i + batch_size]
+            batch_guild_ = await imports.asyncio.gather(*(api.Guild(guild) for guild in batch_guilds))
+            for guild, guild_api in zip(batch_guilds, batch_guild_):
+                if guild_api is None:
+                    guilds_.append((guild, None))
+                    continue
 
-        return batch_stats
+                guilds_.append((guild, guild_api))
+
+            await imports.asyncio.sleep(batch_delay)
+
+        return guilds_
