@@ -142,6 +142,10 @@ class Skywars:
         wins = await self.wins(leaderboard=False)
         losses = await self.losses(leaderboard=False)
         total = wins + losses
+        if total == 0 and wins == 0:
+            return 0
+        elif total == 0:
+            return 100
         rate = wins/total * 100
         return float('{:.2f}'.format(rate))
     
@@ -153,6 +157,8 @@ class Skywars:
         - Lose rate upto 2 decimal places.
         """
         win_rate = await self.win_rate()
+        if win_rate == 0:
+            return 0
         return 100 - win_rate
 
     async def kills(
@@ -243,6 +249,10 @@ class Skywars:
         kills = await self.kills(leaderboard=False)
         deaths = await self.deaths(leaderboard=False)
         total = kills + deaths
+        if total == 0 and kills == 0:
+            return 0
+        elif total == 0:
+            return 100
         rate = kills/total * 100
         return float('{:.2f}'.format(rate))
     
@@ -254,6 +264,8 @@ class Skywars:
         - Death rate upto 2 decimal places.
         """
         kill_rate = await self.kill_rate()
+        if kill_rate == 0:
+            return 0
         return 100 - kill_rate
 
     async def highest_winstreak_reached(
@@ -389,6 +401,10 @@ class Skywars:
         """
         arrows_hit = await self.arrows_hit()
         arrows_shot = await self.arrows_shot()
+        if arrows_shot == 0:
+            return arrows_hit
+        elif arrows_hit == 0:
+            return 0
         ratio = arrows_hit/arrows_shot
         return float('{:.2f}'.format(ratio))
 
@@ -403,6 +419,10 @@ class Skywars:
         arrows_hit = await self.arrows_hit(leaderboard=False)
         arrows_shot = await self.arrows_shot(leaderboard=False)
         total = arrows_hit + arrows_shot
+        if total == 0 and arrows_hit == 0:
+            return 0
+        elif total == 0:
+            return 100
         rate = arrows_hit/total * 100
         return float('{:.2f}'.format(rate))
     
@@ -414,6 +434,8 @@ class Skywars:
         - Arrow miss rate upto 2 decimal places.
         """
         arrow_hit_rate = await self.arrow_hit_rate()
+        if arrow_hit_rate == 0:
+            return 0
         return 100 - arrow_hit_rate
                 
     async def melee_kills(

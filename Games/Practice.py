@@ -142,6 +142,10 @@ class Rankedpractice:
         wins = await self.wins(leaderboard=False)
         losses = await self.losses(leaderboard=False)
         total = wins + losses
+        if total == 0 and wins == 0:
+            return 0
+        elif total == 0:
+            return 100
         rate = wins/total * 100
         return float('{:.2f}'.format(rate))
     
@@ -153,6 +157,8 @@ class Rankedpractice:
         - Lose rate upto 2 decimal places.
         """
         win_rate = await self.win_rate()
+        if win_rate == 0:
+            return 0
         return 100 - win_rate
 
     async def kills(
@@ -259,6 +265,10 @@ class Rankedpractice:
         hits_dealt = await self.hits_dealt(leaderboard=False)
         hits_taken = await self.hits_taken(leaderboard=False)
         total = hits_dealt + hits_taken
+        if total == 0 and hits_dealt == 0:
+            return 0
+        elif total == 0:
+            return 100
         rate = hits_taken/total * 100
         return float('{:.2f}'.format(rate))
     
@@ -270,6 +280,8 @@ class Rankedpractice:
         - Hit taken rate upto 2 decimal places.
         """
         hit_dealt_rate = await self.hit_rate()
+        if hit_dealt_rate == 0:
+            return 0
         return 100 - hit_dealt_rate
 
     async def highest_winstreak_reached(
@@ -567,6 +579,10 @@ class Unrankedpractice:
         wins = await self.wins(leaderboard=False)
         losses = await self.losses(leaderboard=False)
         total = wins + losses
+        if total == 0 and wins == 0:
+            return 0
+        elif total == 0:
+            return 100
         rate = wins/total * 100
         return float('{:.2f}'.format(rate))
     
@@ -578,6 +594,8 @@ class Unrankedpractice:
         - Lose rate upto 2 decimal places.
         """
         win_rate = await self.win_rate() 
+        if win_rate == 0:
+            return 0
         return 100 - win_rate
 
     async def kills(
@@ -684,6 +702,10 @@ class Unrankedpractice:
         hits_dealt = await self.hits_dealt(leaderboard=False)
         hits_taken = await self.hits_taken(leaderboard=False)
         total = hits_dealt + hits_taken
+        if total == 0 and hits_dealt == 0:
+            return 0
+        elif total == 0:
+            return 100
         rate = hits_taken/total * 100
         return float('{:.2f}'.format(rate))
     
@@ -695,6 +717,8 @@ class Unrankedpractice:
         - Hit taken rate upto 2 decimal places.
         """
         hit_dealt_rate = await self.hit_rate()
+        if hit_dealt_rate == 0:
+            return 0
         return 100 - hit_dealt_rate
 
     async def highest_winstreak_reached(
