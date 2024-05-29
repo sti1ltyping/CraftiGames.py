@@ -38,6 +38,7 @@ class imports:
     from selenium import webdriver
     from selenium.webdriver.common.by import By
     from selenium.webdriver.common.keys import Keys
+    from selenium.webdriver.chrome.service import Service
     from typing import (
         Literal, Union
     )
@@ -381,7 +382,9 @@ async def get_driver():
     options = imports.webdriver.ChromeOptions()
     options.add_argument("--start-maximized")
     options.add_argument("--disable-blink-features=AutomationControlled")
-    driver = imports.webdriver.Chrome(executable_path='path/to/chromedriver', options=options)
+    driver_path = 'path/to/chromedriver'
+    service = imports.Service(driver_path)
+    driver = imports.webdriver.Chrome(service=service, options=options)
     return driver
 
 
