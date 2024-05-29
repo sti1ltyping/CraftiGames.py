@@ -1,2 +1,3 @@
 aiohttp
+selenium 
 bs4

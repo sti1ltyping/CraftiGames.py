@@ -44,6 +44,7 @@ from .utils import (
 )
 
 from .utils import header
+from .utils import get_driver
 
 from .RefactorAPI.Guilds import Guild
 from .RefactorAPI.Profiles import Profile
@@ -485,25 +486,26 @@ class Pikanetwork:
         asyncio.run(Example(player='AnyPlayer'))
         """
         await avoid_rate_limits()
-        async with self.session.get(f'https://pika-network.net/bans/search/{player}/') as resp:
+        driver = await get_driver()
 
-            status = resp.status
+        try:
+            driver.get(f'https://pika-network.net/bans/search/{player}/')
+            await imports.asyncio.sleep(imports.random.uniform(5, 10))
 
-            if status == 200:
-                return History(await resp.text())
-            
-            elif status == 429 and Recursion <= Allowed_Recursion:
+            page_source = driver.page_source
+
+            status = driver.execute_script("return document.readyState")
+            if status == "complete":
+                return History(page_source)
+            elif Recursion <= Allowed_Recursion:
                 Recursion += 1
-                imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                await imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
                 await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Punishment(player)
-            
-            elif status == 400 or status == 204:
-                return None
-            
             else:
-                imports.asyncio.create_task(log(status, ' error!'))
                 return None
+        finally:
+            driver.quit()
             
 
     # MultiProcessings
