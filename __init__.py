@@ -487,7 +487,6 @@ class Pikanetwork:
         """
         await avoid_rate_limits()
         driver = await get_driver()
-
         try:
             driver.get(f'https://pika-network.net/bans/search/{player}/')
             await imports.asyncio.sleep(imports.random.uniform(5, 10))
