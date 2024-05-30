@@ -382,9 +382,7 @@ async def get_driver():
     options = imports.webdriver.ChromeOptions()
     options.add_argument("--start-maximized")
     options.add_argument("--disable-blink-features=AutomationControlled")
-    driver_path = 'path/to/chromedriver'
-    service = imports.Service(driver_path)
-    driver = imports.webdriver.Chrome(service=service, options=options)
+    driver = imports.webdriver.Chrome(options=options)
     return driver
 
 
