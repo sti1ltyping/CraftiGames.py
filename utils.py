@@ -35,10 +35,6 @@ class imports:
     from io import BytesIO
     import traceback
     import random
-    from selenium import webdriver
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.common.keys import Keys
-    from selenium.webdriver.chrome.service import Service
     from typing import (
         Literal, Union
     )
@@ -377,13 +373,6 @@ async def header() -> aiohttpClientHeader:
         'Device-Id': imports.random.choice(aiohttpClientHeader.device_ids)
     }
     return headers
-
-async def get_driver():
-    options = imports.webdriver.ChromeOptions()
-    options.add_argument("--start-maximized")
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    driver = imports.webdriver.Chrome(options=options)
-    return driver
 
 
 class Check:

@@ -486,16 +486,11 @@ class Pikanetwork:
         asyncio.run(Example(player='AnyPlayer'))
         """
         await avoid_rate_limits()
-        driver = await get_driver()
-        try:
-            driver.get(f'https://pika-network.net/bans/search/{player}/')
-            await imports.asyncio.sleep(imports.random.uniform(5, 10))
+        async with self.session.get(f'https://pika-network.net/bans/search/{player}/') as resp:
+            status = resp.status
 
-            page_source = driver.page_source
-
-            status = driver.execute_script("return document.readyState")
-            if status == "complete":
-                return History(page_source)
+            if status == 200:
+                return History(await resp.text())
             elif Recursion <= Allowed_Recursion:
                 Recursion += 1
                 await imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
@@ -503,9 +498,6 @@ class Pikanetwork:
                 return await self.Punishment(player)
             else:
                 return None
-        finally:
-            driver.quit()
-            
 
     # MultiProcessings
     
