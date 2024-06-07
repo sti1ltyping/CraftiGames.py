@@ -44,7 +44,6 @@ from .utils import (
 )
 
 from .utils import header
-from .utils import get_driver
 
 from .RefactorAPI.Guilds import Guild
 from .RefactorAPI.Profiles import Profile
