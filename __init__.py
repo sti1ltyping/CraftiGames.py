@@ -48,6 +48,7 @@ from .utils import header
 from .RefactorAPI.Guilds import Guild
 from .RefactorAPI.Profiles import Profile
 from .RefactorAPI.Leaderboard import Sort
+from .RefactorAPI.PikanetworkStatus import PikaNetworkStatus
 
 from .Games.Bedwars import Bedwars
 from .Games.Skywars import Skywars
@@ -87,6 +88,7 @@ class PikaAnnotations:
     Profile = Profile
     Guild = Guild
     Punishments = History
+    Status = PikaNetworkStatus
 
 
 class Pikanetwork:
@@ -145,6 +147,7 @@ class Pikanetwork:
         Profile = Profile
         Guild = Guild
         Punishments = History
+        Status = PikaNetworkStatus
 
 
     async def Profile(
@@ -356,7 +359,6 @@ class Pikanetwork:
         
         asyncio.run(Example(guild='AnyGuild'))
         """
-
         await avoid_rate_limits()
         async with self.session.get(f'https://stats.pika-network.net/api/clans/{guild}') as resp:
 
@@ -407,6 +409,7 @@ class Pikanetwork:
                 imports.asyncio.create_task(log(status, ' error!'))
                 return None
 
+
     async def Leaderboard(
             self,
             gamemode: Literal["bedwars", "skywars", "unrankedpractice", "rankedpractice"],
@@ -437,6 +440,31 @@ class Pikanetwork:
             offset += 25
 
         return Sort(await imports.asyncio.gather(*[task for task in Leaderboard_])).__Leaderboard__()
+
+    
+    async def Status(
+            self,
+            *,
+            Recursion = 0
+        ) -> PikaNetworkStatus:
+        """
+        Network Status API
+        ~~~~~~~~~~
+        
+        Returns:
+        - 'PikaNetworkStatus'
+        """
+        await avoid_rate_limits()
+        async with self.session.get("https://api.craftigames.net/count/play.pika-network.net") as resp:
+            if resp.status == 200:
+                return PikaNetworkStatus(await resp.json())
+            elif Recursion <= Allowed_Recursion:
+                Recursion += 1
+                await imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
+                return await self.Status()
+            else:
+                return None
 
 
     async def Punishment(

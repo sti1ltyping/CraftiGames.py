@@ -38,6 +38,7 @@ class imports:
     from typing import (
         Literal, Union
     )
+    from dateutil import parser
 
 
 class Weekly:

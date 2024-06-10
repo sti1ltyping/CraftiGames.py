@@ -21,4 +21,5 @@ Credits
 EXAMPLES
 ====
 
-
+```python
+```

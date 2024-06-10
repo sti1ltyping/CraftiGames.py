@@ -22,13 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+from .utils import imports #type: ignore
 
-class Sort:
+class PikaNetworkStatus:
     """
-    Wraps Punishments
+    Wrap PikaNetwork Status
     ~~~~~
 
     ==================================================================================================
+
     MIT License
 
     Copyright (c) 2024 Sti1lTyping
@@ -49,25 +51,36 @@ class Sort:
     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
-    """
+    SOFTWARE."""
 
-    def __init__(self, data: list[dict]) -> None:
-        self.data: list[dict] = data
-        self.total_entry = self.__combined__()
+    def __init__(self, data):
+        self.data: dict = data
 
     
-    def __combined__(self) -> list[dict]:
+    async def ip(self) -> str:
+        """
+        Returns:
+        - IP of the server.
+        """
+        return self.data.get("ip", None)
 
-        total_entry = []
-        for index in self.data:
-            for player_data in index.get("entries", []):
-                if player_data not in total_entry:
-                    total_entry.append(player_data)
-
-        return total_entry
+    async def count(self) -> int:
+        """
+        Returns:
+        - Player count of the server.
+        """
+        return self.data.get("count", None)
     
-
-    def __Leaderboard__(self) -> list[dict]:
-
-        return self.total_entry
+    async def discord_count(self) -> int:
+        """
+        Returns:
+        - Member count of the discord server.
+        """
+        return self.data.get("discordCount", None)
+    
+    async def updated_at(self) -> int:
+        """
+        Returns:
+        - Last updated (discord timestamp int).
+        """
+        return int(imports.parser.isoparse(self.data.get("updated_at")).timestamp())
