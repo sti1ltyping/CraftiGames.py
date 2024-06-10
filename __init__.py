@@ -457,7 +457,7 @@ class Pikanetwork:
         await avoid_rate_limits()
         async with self.session.get("https://api.craftigames.net/count/play.pika-network.net") as resp:
             if resp.status == 200:
-                return PikaNetworkStatus(await resp.json())
+                return PikaNetworkStatus(imports.json.loads(await resp.text()))
             elif Recursion <= Allowed_Recursion:
                 Recursion += 1
                 await imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
