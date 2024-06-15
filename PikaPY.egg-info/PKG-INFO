@@ -1,3 +1,28 @@
+Metadata-Version: 2.1
+Name: PikaPY
+Version: 1.1.1
+Summary: A Python based API wrapper for PikaNetwork
+Home-page: https://github.com/sti1ltyping/PikaPY
+Author: sti1ltyping
+Author-email: sti1ltyping.chillax@gmail.com
+License: MIT
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Intended Audience :: Developers
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Internet
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Utilities
+Requires-Python: >=3.8.0
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
 PikaPY
 ==========
 
@@ -19,7 +44,7 @@ Credits
 - Author: [sti1ltyping](https://discord.com/users/840587974000771072)
 - Contact: https://discord.gg/B3DQgwUgyT
 
-- This API wrapper is developed by the dedicated development team of  [`Pikachu's Stats`](https://discord.com/oauth2/authorize?client_id=1112768481956479108&permissions=563914781097033&scope=bot). This same wrapper is utilized within the application.
+
 
 EXAMPLES
 ====

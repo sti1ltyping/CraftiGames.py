@@ -1,3 +1,4 @@
+"""
 MIT License
 
 Copyright (c) 2024 sti1ltyping
@@ -19,3 +20,15 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+"""
+
+
+async def faulty(data: dict) -> bool:
+
+    """check faulty stats"""
+
+    for key, value in data.items():
+        if value["metadata"] is None and value["entries"] is None:
+            return True
+    
+    return False

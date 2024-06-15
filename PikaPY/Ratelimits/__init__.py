@@ -1,3 +1,4 @@
+"""
 MIT License
 
 Copyright (c) 2024 sti1ltyping
@@ -19,3 +20,39 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+"""
+
+
+from PikaPY._Logger import log  # type: ignore
+from PikaPY.utils import imports  # type: ignore
+from PikaPY.utils import (  # type: ignore
+    Interval,
+    MAX_REQUESTS_PER_INTERVAL,
+    delay
+)
+
+RATE_LIMIT_INTERVAL = imports.timedelta(seconds=Interval)
+
+last_request_time = imports.time.time()
+API_requests = 0
+
+async def avoid_rate_limits():
+    """
+    Handles rate limits
+    """
+    global API_requests, last_request_time
+
+    current_time = imports.time.time()
+    time_difference = current_time - last_request_time
+
+    if time_difference > RATE_LIMIT_INTERVAL.total_seconds():
+        API_requests = 0
+        last_request_time = current_time
+
+    API_requests += 1
+
+    if API_requests > MAX_REQUESTS_PER_INTERVAL:
+        imports.asyncio.create_task(log('Max request per interval reached: Delayed for', delay))
+        await imports.asyncio.sleep(delay)
+        API_requests = 0
+        last_request_time = imports.time.time()

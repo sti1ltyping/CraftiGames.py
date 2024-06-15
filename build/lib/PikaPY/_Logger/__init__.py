@@ -1,3 +1,4 @@
+"""
 MIT License
 
 Copyright (c) 2024 sti1ltyping
@@ -19,3 +20,18 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+"""
+
+from PikaPY.utils import logging # type: ignore
+
+
+async def log(
+        *content: object
+    ) -> None:
+
+    """logs in console"""
+
+    if logging is False:
+        return
+
+    print(' '.join(map(str, content)))
