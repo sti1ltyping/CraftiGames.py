@@ -638,7 +638,7 @@ class Pikanetwork:
             self,
             api: 'Pikanetwork',
             players: List[str],
-            ) -> list['Profile']:
+            ) -> list[tuple[str, 'Profile']]:
         """
         Multiple Profiles
         ~~~~~~~~~~~~~~
@@ -703,7 +703,7 @@ class Pikanetwork:
             gamemode: Literal["bedwars", "skywars", "unrankedpractice", "rankedpractice"],
             interval: Literal["weekly", "monthly", "yearly", "total"],
             mode: Literal["all_modes", "solo", "doubles", "triples", "quad"]
-            ) -> list[Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice]]:
+            ) -> list[tuple[str, Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice]]]:
         """
         Multiple stats
         ~~~~~~~~~~~~~~
@@ -768,7 +768,7 @@ class Pikanetwork:
             self,
             api: 'Pikanetwork',
             guilds: List[str],
-            ) -> 'Guild':
+            ) -> list[tuple[str, 'Guild']]:
         """
         Multiple Guilds
         ~~~~~~~~~~~~~~
@@ -830,7 +830,7 @@ class Pikanetwork:
             self,
             api: 'Pikanetwork',
             ids: List[str]
-        ) -> 'Recap':
+        ) -> list[tuple[str, 'Recap']]:
         """
         Multiple Guilds
         ~~~~~~~~~~~~~~
