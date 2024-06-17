@@ -1,4 +1,4 @@
-PikaPY
+ CraftiGames
 ==========
 
 Pikanetwork API Wrapper
@@ -29,7 +29,7 @@ EXAMPLES
 
 
 ```python
-from PikaPY import Pikanetwork, PikaAnnotations
+from  CraftiGames import Pikanetwork, PikaAnnotations
 import asyncio
 
 
