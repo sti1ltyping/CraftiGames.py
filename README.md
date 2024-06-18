@@ -259,8 +259,36 @@ asyncio.run(main())
 ```
 
 
-Logging
+How to Change Configuration
 ===
 
 
+```python
+from CraftiGames import config
+
+config(
+    Logging = True,
+    Allowed_Recursion = 50,
+    Batch_Size = 25,
+    Batch_Delay = 0.8,
+    Default_Skins = ['fwgazes', 'ignLone'],
+    Interval = 1,
+    Max_Requests_Per_Interval = 25,
+    Delay = 0.8,
+    Delay_After_Exceeding_Ratelimit = 1
+)
+```
+
 ![image](https://github.com/sti1ltyping/CraftiGames/assets/152976324/868b99af-d927-4bab-8a40-7fc7b86e10c7)
+
+
+Reset to default
+
+```python
+from CraftiGames import config
+
+config() # reset config to default settings
+```
+
+
+
