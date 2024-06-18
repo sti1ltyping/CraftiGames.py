@@ -257,3 +257,10 @@ async def main():
 
 asyncio.run(main())
 ```
+
+
+Logging
+===
+
+
+![image](https://github.com/sti1ltyping/CraftiGames/assets/152976324/868b99af-d927-4bab-8a40-7fc7b86e10c7)
