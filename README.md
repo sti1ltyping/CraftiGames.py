@@ -24,11 +24,9 @@ Credits
 
 Installing
 ----------
-.. code:: sh
-
+```
     pip install CraftiGames
-
-.. code:: sh
+```
 
 
 EXAMPLES
