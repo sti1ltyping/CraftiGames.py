@@ -262,6 +262,7 @@ asyncio.run(main())
 How to Change Configuration
 ===
 
+**Changing the configuration is not recommended as the default settings ensure efficiency and prevent rate limits. You can still edit it for even higher efficency and logging.**
 
 ```python
 from CraftiGames import config
@@ -282,7 +283,7 @@ config(
 ![image](https://github.com/sti1ltyping/CraftiGames/assets/152976324/868b99af-d927-4bab-8a40-7fc7b86e10c7)
 
 
-Reset to default
+**How to reset to default configuration**
 
 ```python
 from CraftiGames import config
