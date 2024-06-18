@@ -57,7 +57,7 @@ from .Games.Skywars import Skywars
 from .Punishments import History
 
 from .Ratelimits import (
-    jartexnetwork as jr_
+    _jartexnetwork as jr_
 )
 
 from .ResponseError import faulty
@@ -65,7 +65,7 @@ from .ResponseError import faulty
 from ._Logger import log
 
 from .utils import (
-    Allowed_Recursion,
+    allowed_recursion,
     batch_size,
     batch_delay,
     delay_after_exceeding_ratelimit
@@ -185,7 +185,7 @@ class Jartexnetwork:
         ~~~~~~
 
         ~~~
-        from PikaPY import Jartexnetwork, JartexAnnotations
+        from CraftiGames import Jartexnetwork, JartexAnnotations
         import asyncio
 
 
@@ -215,16 +215,16 @@ class Jartexnetwork:
 
             # Extract the guild from player's profile
             # Returns 'Guild' class if player is in a guild else returns None
-            guild = profile.guild()  
+            clan = profile.clan()  
 
-            if guild:
-                name = guild.name
-                leader = guild.leader
+            if clan:
+                name = clan.name
+                leader = clan.owner
                 # and many more...
 
-                print(f"{username} is a member of {name}. Leader of that guild is {leader}")
+                print(f"{username} is a member of {name}. Leader of that owner is {owner}")
 
-            print(username, level, minigame_rank, practice_rank)
+            print(username, level, rank)
 
 
         asyncio.run(example())
@@ -237,13 +237,14 @@ class Jartexnetwork:
             if status == 200:
                 return JartexProfile(await resp.json(), session=self.session)
 
-            elif status == 429 and Recursion <= Allowed_Recursion:
+            elif status == 429 and Recursion <= allowed_recursion:
                 Recursion += 1
                 imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
                 await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Profile(player)
 
             elif status == 400 or status == 204:
+                imports.asyncio.create_task(log(player, ' not found!'))
                 return None
             
             elif status == 403:
@@ -284,7 +285,7 @@ class Jartexnetwork:
         ~~~~~~
 
         ~~~
-        from PikaPY import Pikanetwork, PikaAnnotations
+        from CraftiGames import Jartexnetwork, JartexAnnotations
         import asyncio
 
 
@@ -292,7 +293,7 @@ class Jartexnetwork:
 
         async def example():
 
-            async with Pikanetwork() as api:
+            async with Jartexnetwork() as api:
 
                 stats = await api.Stats(AnyPlayer, "bedwars", "total", "all_modes")
             
@@ -323,9 +324,9 @@ class Jartexnetwork:
             if status == 200:
                 data: dict = await resp.json()
 
-                if await faulty(data) and Recursion <= Allowed_Recursion:
+                if await faulty(data) and Recursion <= allowed_recursion:
                     Recursion += 1
-                    imports.asyncio.create_task(log('Faulty Stats detected:', Recursion, 'X'))
+                    imports.asyncio.create_task(log('Faulty Stats detected: ', Recursion, 'X'))
                     return await self.Stats(player, gamemode, interval, mode, Recursion=Recursion)
 
                 return {
@@ -337,17 +338,18 @@ class Jartexnetwork:
                 )(data)
 
 
-            elif status == 429 and Recursion <= Allowed_Recursion:
+            elif status == 429 and Recursion <= allowed_recursion:
                 Recursion += 1
                 imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
                 await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Stats(player, gamemode, interval, mode, Recursion=Recursion)
             
             elif status == 204:
-                imports.asyncio.create_task(log(player, 'is hidden from the API!'))
+                imports.asyncio.create_task(log(player, ' is hidden from the API!'))
                 return None
             
             elif status == 400:
+                imports.asyncio.create_task(log(player, ' not found!'))
                 return None
             
             elif status == 403:
@@ -359,69 +361,70 @@ class Jartexnetwork:
 
     async def Clan(
             self,
-            guild: str,
+            clan: str,
             *,
             Recursion: 'Do_Not_Touch' = 0
             ) -> Union[Clan, None]:
         """
-        Guild API
+        Clan API
         ~~~~~~~~~
 
         Parameters:
-            - guild (str): Name of the guild.
+            - clan (str): Name of the clan.
             
             Returns:
-            - If guild is found returns GuildContext.
-            - Retunrs None if unable to find guild.
+            - If clan is found returns ClanContext.
+            - Returns None if unable to find the clan.
         
         Example
         ~~~~~~
 
         ~~~
-        from PikaPY import Pikanetwork, PikaAnnotations
+        from CraftiGames import Jartexnetwork, JartexAnnotations
         import asyncio
 
 
-        AnyGuild: str = ...
+        AnyClan: str = ...
 
         async def example():
 
-            async with Pikanetwork() as api:
+            async with from Jartexnetwork() as api:
 
-                guild = await api.Guild(AnyGuild)
+                clan = await api.Clan(AnyClan)
             
-            if guild is None:
-                return print("Guild not found!")
+            if clan is None:
+                return print("clan not found!")
             
-            name = guild.name
-            tag = guild.tag
-            level = guild.level
-            member_list = guild.member_list
-            member_count = guild.member_count
-            leader = guild.leader
+            name = clan.name
+            tag = clan.tag
+            level = clan.level
+            member_list = clan.member_list
+            member_count = clan.member_count
+            owner = clan.owner
 
             # and more...
 
-            print(name, tag, level, member_count, leader)
+            print(name, tag, level, member_count, owner)
             print(member_list)
 
         asyncio.run(example())
         """
         await jr_.avoid_rate_limits()
-        async with self.session.get(f'https://stats.jartexnetwork.com/api/clans/{guild}') as resp:
+        async with self.session.get(f'https://stats.jartexnetwork.com/api/clans/{clan}') as resp:
 
             status = resp.status
 
             if status == 200:
                 return Clan(await resp.json())
             
-            elif status == 429 and Recursion <= Allowed_Recursion:
+            elif status == 429 and Recursion <= allowed_recursion:
                 Recursion += 1
-                imports.asyncio.create_task(log('Exceeded ratelimit:', Recursion, 'X'))
+                imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
                 await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
-                return await self.Guild(guild)
+                return await self.Clan(clan)
             
             elif status == 400 or status == 204:
+                imports.asyncio.create_task(log(clan, ' not found!'))
                 return None
             
             elif status == 403:
@@ -451,7 +454,7 @@ class Jartexnetwork:
             if status == 200:
                 return await resp.json()
             
-            elif status == 429 and Recursion <= Allowed_Recursion:
+            elif status == 429 and Recursion <= allowed_recursion:
                 Recursion += 1
                 imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
                 await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
@@ -508,15 +511,15 @@ class Jartexnetwork:
         ~~~~~~~~~~
         
         Returns:
-        - 'PikaNetworkStatus'
+        - 'NetworkStatus'
         """
         await jr_.avoid_rate_limits()
         async with self.session.get("https://api.craftigames.net/count/play.jartexnetwork.com") as resp:
             if resp.status == 200:
                 return NetworkStatus(imports.json.loads(await resp.text()))
-            elif Recursion <= Allowed_Recursion:
+            elif Recursion <= allowed_recursion:
                 Recursion += 1
-                imports.asyncio.create_task(log('Exceeded ratelimit:', Recursion, 'X'))
+                imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
                 await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Status()
             else:
@@ -551,9 +554,9 @@ class Jartexnetwork:
             elif status == 404 or status == 400 or status == 204:
                 return None
             
-            elif status == 429 and Recursion <= Allowed_Recursion:
+            elif status == 429 and Recursion <= allowed_recursion:
                 Recursion += 1
-                imports.asyncio.create_task(log('Exceeded ratelimit:', Recursion, 'X'))
+                imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
                 await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Recap(key, Recursion=Recursion)
             
@@ -585,12 +588,12 @@ class Jartexnetwork:
         ~~~~~~
 
         ~~~
-        from PikaPY import Pikanetwork
+        from CraftiGames import Jartexnetwork
         import asyncio
 
         async def Example(player: str):
             
-            async with Pikanetwork() as API:
+            async with Jartexnetwork() as API:
             
                 punishment = await API.Punishment(player)
 
@@ -612,10 +615,10 @@ class Jartexnetwork:
             if status == 200:
                 return History(await resp.text())
             
-            elif status == 429 and Recursion <= Allowed_Recursion:
+            elif status == 429 and Recursion <= allowed_recursion:
 
                 Recursion += 1
-                imports.asyncio.create_task(log('Exceeded ratelimit:', Recursion, 'X'))
+                imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
                 await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Punishment(player)
             
@@ -637,18 +640,18 @@ class Jartexnetwork:
         ~~~~~~~~~~~~~~
 
         Parameters:
-            - api: Instance of Pikanetwork class
+            - api: Instance of Jartexnetork class
             - players: List of players.
             
         Returns:
             - An array of players usernames and profile, it can further be used to extract specific items from profile.
-            - Profile is None for any players that are not registered on PikaNetwork.
+            - Profile is None for any players that are not registered on Jartexnetork.
         
         Example
         ~~~~~~
 
         ~~~
-        from PikaPY import Pikanetwork, PikaAnnotations
+        from CraftiGames import Jartexnetwork, JartexAnnotations
         import asyncio
 
 
@@ -656,18 +659,18 @@ class Jartexnetwork:
 
         async def example():
 
-            async with Pikanetwork() as api:
+            async with Jartexnetork() as api:
                 response = await api.MultiProfile(api, List_of_Players)
             
             for username, profile_api in response:
-                profile_api: PikaAnnotations.Profile    # Annotations for profile api
+                profile_api: JartexAnnotations.Profile    # Annotations for profile api
 
                 # Error handling
                 if profile_api is None:
-                    print(f"Couldn't find {username}")      # Player has not registered on pikanetwork.
+                    print(f"Couldn't find {username}")      # Player has not registered on Jartexnetork.
                     continue
 
-                print(username, profile_api.highest_minigame_rank)
+                print(username, profile_api.rank)
                 
 
         asyncio.run(example())
@@ -702,7 +705,7 @@ class Jartexnetwork:
         ~~~~~~~~~~~~~~
 
         Parameters:
-            - api: Instance of Pikanetwork class
+            - api: Instance of Jartexnetork class
             - players: List of players.
             - gamemode: Minigame of the stats.
             - interval: Timespan of the stats.
@@ -716,7 +719,7 @@ class Jartexnetwork:
         ~~~~~~
 
         ~~~
-        from PikaPY import Pikanetwork, PikaAnnotations
+        from CraftiGames import Jartexnetork, JartexAnnotations
         import asyncio
 
 
@@ -724,11 +727,11 @@ class Jartexnetwork:
 
         async def example():
 
-            async with Pikanetwork() as api:
+            async with Jartexnetork() as api:
                 response = await api.Stats(api, List_of_Players, "total", "all_modes")
             
             for username, stats_api in response:
-                stats_api: PikaAnnotations.Stats    # Annotations for stats api
+                stats_api: JartexAnnotations.Stats    # Annotations for stats api
 
                 # Error handling
                 if stats_api is None:
@@ -763,41 +766,41 @@ class Jartexnetwork:
             guilds: list[str],
             ) -> list[tuple[str, 'Clan']]:
         """
-        Multiple Guilds
+        Multiple Clans
         ~~~~~~~~~~~~~~
 
         Parameters:
-            - api: Instance of Pikanetwork class
-            - guilds: List of guilds.
+            - api: Instance of Jartexnetork class.
+            - clans: List of clans.
             
         Returns:
-            - An array of guild's names and guild class, it can further be used to extract specific items from the guild class.
-            - Guild is None for any invalid guild.
+            - An array of clan's names and clan class, it can further be used to extract specific items from the clan class.
+            - Clan is None for any invalid clan.
         
         Example
         ~~~~~~
 
         ~~~
-        from PikaPY import Pikanetwork, PikaAnnotations
+        from CraftiGames import Jartexnetork, JartexAnnotations
         import asyncio
 
 
-        List_of_Guilds: list = [...]
+        List_of_Clans: list = [...]
 
         async def example():
 
             async with Pikanetwork() as api:
-                response = await api.MultiGuilds(api, List_of_Guilds)
+                response = await api.MultiClans(api, List_of_Clans)
             
-            for name, guild_api in response:
-                guild_api: PikaAnnotations.Guild    # Annotations for stats api
+            for name, clan_api in response:
+                clan_api: JartexAnnotations.Clan    # Annotations for clan api
 
                 # Error handling
-                if guild_api is None:
-                    print(f"Couldn't find {name}")      # Incorrect guild name
+                if clan_api is None:
+                    print(f"Couldn't find {name}")      # Incorrect clan name
                     continue
 
-                print(name, guild_api.level)
+                print(name, clan_api.level)
                 
 
         asyncio.run(example())
@@ -825,11 +828,11 @@ class Jartexnetwork:
             ids: List[str]
         ) -> List[Tuple[str, 'Recap']]:
         """
-        Multiple Guilds
+        Multiple Recaps
         ~~~~~~~~~~~~~~
 
         Parameters:
-            - api: Instance of Pikanetwork class
+            - api: Instance of Jartexnetork class
             - ids: List of ids/keys.
             
         Returns:
@@ -840,7 +843,7 @@ class Jartexnetwork:
         ~~~~~~
 
         ~~~
-        from PikaPY import Pikanetwork, PikaAnnotations
+        from CraftiGames import Jartexnetork, JartexnAnnotations
         import asyncio
 
 
@@ -848,11 +851,11 @@ class Jartexnetwork:
 
         async def example():
 
-            async with Pikanetwork() as api:
+            async with Jartexnetork() as api:
                 response = await api.MultiRecaps(api, Ids_of_recaps)
             
             for id, recap_api in response:
-                recap_api: PikaAnnotations.Recap    # Annotations for recap api
+                recap_api: JartexAnnotations.Recap    # Annotations for recap api
 
                 # Error handling
                 if recap_api is None:

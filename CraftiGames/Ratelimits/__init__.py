@@ -22,4 +22,5 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import pikanetwork, jartexnetwork
+import CraftiGames.Ratelimits._pikanetwork as pikanetwork
+import CraftiGames.Ratelimits._jartexnetwork as jartexnetwork

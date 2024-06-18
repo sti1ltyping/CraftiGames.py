@@ -35,12 +35,12 @@ __version__ = '1.1.1'
 
 from typing import NamedTuple, Literal
 
-from .PikaNetwork import (
+from .__PikaNetwork__ import (
     Pikanetwork,
     PikaAnnotations,
 )
 
-from .JartexNetwork import (
+from .__JartexNetwork__ import (
     Jartexnetwork,
     JartexAnnotations
 )
@@ -49,6 +49,8 @@ from .utils import (
     APIResponseError,
     APIBlockedException
 )
+
+from .utils import config
 
 
 class VersionInfo(NamedTuple):

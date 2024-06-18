@@ -26,19 +26,19 @@ SOFTWARE.
 from CraftiGames._Logger import log  # type: ignore
 from CraftiGames.utils import imports  # type: ignore
 from CraftiGames.utils import (  # type: ignore
-    Interval,
-    MAX_REQUESTS_PER_INTERVAL,
+    interval,
+    max_requests_per_interval as MAX_REQUESTS_PER_INTERVAL,
     delay
 )
 
-RATE_LIMIT_INTERVAL = imports.timedelta(seconds=Interval)
+RATE_LIMIT_INTERVAL = imports.timedelta(seconds=interval)
 
 last_request_time = imports.time.time()
 API_requests = 0
 
 async def avoid_rate_limits():
     """
-    Handles rate limits for `JartexNetwork`'s API.
+    Handles rate limits for `PikaNetwork`'s API.
     """
     global API_requests, last_request_time
 
@@ -52,7 +52,7 @@ async def avoid_rate_limits():
     API_requests += 1
 
     if API_requests > MAX_REQUESTS_PER_INTERVAL:
-        imports.asyncio.create_task(log('Max request per interval reached: Delayed for', delay))
+        imports.asyncio.create_task(log('Max request per interval reached: Delayed for: ', delay, ' sec'))
         await imports.asyncio.sleep(delay)
         API_requests = 0
         last_request_time = imports.time.time()

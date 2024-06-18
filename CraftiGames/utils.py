@@ -41,7 +41,9 @@ class imports:
     from dateutil import parser
     import configparser
     import colorama
+    from pathlib import Path
 
+settings_path = imports.Path('CraftiGames/settings.ini')
 
 class Weekly:
 
@@ -561,19 +563,96 @@ class Check:
             raise ValueError("Invalid stats, you can't use that in rankedpractice.")
         elif gamemode.lower() == 'unrankedpractice' and stats.lower() not in self.UnrankedPractice:
             raise ValueError("Invalid stats, you can't use that in unrankedpractice.")
+        
+
+_config = imports.configparser.ConfigParser()
+
+logging = False
+allowed_recursion = 30
+batch_size = 10
+default_skins = ["XSteve"]
+delay_after_exceeding_ratelimit = 1.5
+batch_delay = 1
+interval = 1
+max_requests_per_interval = 20
+delay = 1.5
+
+def SelfConfig():
+    global logging, allowed_recursion, batch_size, default_skins
+    global delay_after_exceeding_ratelimit, batch_delay, interval
+    global max_requests_per_interval, delay
+
+    _config.read(settings_path)
+
+    logging = _config.getboolean('DEFAULT', 'Logging', fallback=False)
+    allowed_recursion = _config.getint('DEFAULT', 'Allowed_Recursion', fallback=30)
+    batch_size = _config.getint('DEFAULT', 'Batch_size', fallback=10)
+    default_skins = _config.get('Skins', 'Default', fallback="XSteve").split(',')
+
+    delay_after_exceeding_ratelimit = _config.getfloat('Ratelimit', 'Delay_After_Exceeding_Ratelimit', fallback=1.5)
+    batch_delay = _config.getfloat('Ratelimit', 'Delay_Between_Batches', fallback=1)
+    interval = _config.getint('Ratelimit', 'Interval', fallback=1)
+    max_requests_per_interval = _config.getint('Ratelimit', 'Request_Per_Interval', fallback=20)
+    delay = _config.getfloat('Ratelimit', 'Delay', fallback=1.5)
+
+SelfConfig()
 
 
-config = imports.configparser.ConfigParser()
-config.read('PikaPY/settings.ini')
+def config(
+        *,
+        Logging: bool = False,
+        Allowed_Recursion: int = 30,
+        Batch_Size: int = 10,
+        Batch_Delay: float = 1,
+        Default_Skins: list = ['XSteve'],
+        Interval: int = 1,
+        Max_Requests_Per_Interval: int = 20,
+        Delay: float = 1.5,
+        Delay_After_Exceeding_Ratelimit: float = 1.5
+) -> None:
+    """
+    Caution
+    ~~~~
+    Using this function is not recommended.
 
-logging = config.getboolean('DEFAULT', 'Logging', fallback=False)
-Allowed_Recursion = config.getint('DEFAULT', 'Allowed_Recursion', fallback=30)
-batch_size = config.getint('DEFAULT', 'Batch_size', fallback=10)
+    _______________________________________________________________________________________________
 
-default_skins = config.get('Skins', 'Default', fallback="XSteve").split(',')
+    This function can be used to configure `CraftiGames` settings. [Dynamically updates config]
 
-delay_after_exceeding_ratelimit = config.getfloat('Ratelimit', 'Delay_After_Exceeding_Ratelimit', fallback=1.5)
-batch_delay = config.getfloat('Ratelimit', 'Delay_Between_Batches', fallback=1)
-Interval = config.getint('Ratelimit','Interval', fallback=1)
-MAX_REQUESTS_PER_INTERVAL = config.getint('Ratelimit','Request_Per_Interval', fallback=20)
-delay = config.getfloat('Ratelimit','Delay', fallback=1.5)
+    NOTE:
+    - In case you want to undo your change use the following code:
+
+    ```
+    from CraftiGames import config
+
+    config() # sets everything to default
+    ```
+    """
+    _config = imports.configparser.ConfigParser()
+
+    _config['DEFAULT'] = {
+        'Logging': str(Logging),
+        'Allowed_Recursion': str(Allowed_Recursion),
+        'Batch_size': str(Batch_Size)
+    }
+
+    _config['Skins'] = {
+        'Default': ', '.join(Default_Skins)
+    }
+
+    _config['Ratelimit'] = {
+        'Delay_After_Exceeding_Ratelimit': str(Delay_After_Exceeding_Ratelimit),
+        'Delay_Between_Batches': str(Batch_Delay),
+        'Interval': str(Interval),
+        'Request_Per_Interval': str(Max_Requests_Per_Interval),
+        'Delay': str(Delay)
+    }
+
+    settings_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(settings_path, 'w', encoding='utf-8') as file:
+        _config.write(file)
+
+    SelfConfig()
+
+    return

@@ -57,14 +57,14 @@ from .Games.Practice import Unrankedpractice, Rankedpractice
 
 from .Punishments import History
 
-from .Ratelimits import pikanetwork as pr_
+from .Ratelimits import _pikanetwork as pr_
 
 from .ResponseError import faulty
 
 from ._Logger import log
 
 from .utils import (
-    Allowed_Recursion,
+    allowed_recursion,
     batch_size,
     batch_delay,
     delay_after_exceeding_ratelimit
@@ -237,13 +237,14 @@ class Pikanetwork:
             if status == 200:
                 return PikaProfile(await resp.json(), session=self.session)
 
-            elif status == 429 and Recursion <= Allowed_Recursion:
+            elif status == 429 and Recursion <= allowed_recursion:
                 Recursion += 1
-                imports.asyncio.create_task(log('Exceeded ratelimit:', Recursion, 'X'))
+                imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
                 await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Profile(player)
 
             elif status == 400 or status == 204:
+                imports.asyncio.create_task(log(player, ' not found!'))
                 return None
             
             elif status == 403:
@@ -323,9 +324,9 @@ class Pikanetwork:
             if status == 200:
                 data: dict = await resp.json()
 
-                if await faulty(data) and Recursion <= Allowed_Recursion:
+                if await faulty(data) and Recursion <= allowed_recursion:
                     Recursion += 1
-                    imports.asyncio.create_task(log('Faulty Stats detected:', Recursion, 'X'))
+                    imports.asyncio.create_task(log('Faulty Stats detected: ', Recursion, 'X'))
                     return await self.Stats(player, gamemode, interval, mode, Recursion=Recursion)
 
                 return {
@@ -339,17 +340,18 @@ class Pikanetwork:
                 )(data)
 
 
-            elif status == 429 and Recursion <= Allowed_Recursion:
+            elif status == 429 and Recursion <= allowed_recursion:
                 Recursion += 1
                 imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
                 await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Stats(player, gamemode, interval, mode, Recursion=Recursion)
             
             elif status == 204:
-                imports.asyncio.create_task(log(player, 'is hidden from the API!'))
+                imports.asyncio.create_task(log(player, ' is hidden from the API!'))
                 return None
             
             elif status == 400:
+                imports.asyncio.create_task(log(player, ' not found!'))
                 return None
             
             elif status == 403:
@@ -417,13 +419,14 @@ class Pikanetwork:
             if status == 200:
                 return Guild(await resp.json())
             
-            elif status == 429 and Recursion <= Allowed_Recursion:
+            elif status == 429 and Recursion <= allowed_recursion:
                 Recursion += 1
                 imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
                 await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Guild(guild)
             
             elif status == 400 or status == 204:
+                imports.asyncio.create_task(log(guild, ' not found!'))
                 return None
             
             elif status == 403:
@@ -453,7 +456,7 @@ class Pikanetwork:
             if status == 200:
                 return await resp.json()
             
-            elif status == 429 and Recursion <= Allowed_Recursion:
+            elif status == 429 and Recursion <= allowed_recursion:
                 Recursion += 1
                 imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
                 await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
@@ -516,7 +519,7 @@ class Pikanetwork:
         async with self.session.get("https://api.craftigames.net/count/play.pika-network.net") as resp:
             if resp.status == 200:
                 return NetworkStatus(imports.json.loads(await resp.text()))
-            elif Recursion <= Allowed_Recursion:
+            elif Recursion <= allowed_recursion:
                 Recursion += 1
                 imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
                 await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
@@ -553,7 +556,7 @@ class Pikanetwork:
             elif status == 404 or status == 400 or status == 204:
                 return None
             
-            elif status == 429 and Recursion <= Allowed_Recursion:
+            elif status == 429 and Recursion <= allowed_recursion:
                 Recursion += 1
                 imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
                 await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
@@ -614,7 +617,7 @@ class Pikanetwork:
             if status == 200:
                 return History(await resp.text())
             
-            elif status == 429 and Recursion <= Allowed_Recursion:
+            elif status == 429 and Recursion <= allowed_recursion:
 
                 Recursion += 1
                 imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))

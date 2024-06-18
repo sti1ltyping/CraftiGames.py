@@ -25,7 +25,7 @@ SOFTWARE.
 
 class CombinedLeaderboard:
     """
-    Wraps Punishments
+    Combine Leaderboard
     ~~~~~
 
     ==================================================================================================

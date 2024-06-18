@@ -188,7 +188,7 @@ class Clan:
         return self.raw.get("tag", '')
     
     @property
-    def currentTrophies(self) -> int:
+    def trophies(self) -> int:
         """
         Returns:
         - Clan's current trophies.
