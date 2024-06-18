@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from PikaPY.Games import Stats # type: ignore
+from CraftiGames.Games import Stats # type: ignore
 
 class Bedwars:
     """

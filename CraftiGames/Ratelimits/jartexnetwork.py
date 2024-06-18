@@ -22,16 +22,37 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from PikaPY.utils import logging # type: ignore
 
+from CraftiGames._Logger import log  # type: ignore
+from CraftiGames.utils import imports  # type: ignore
+from CraftiGames.utils import (  # type: ignore
+    Interval,
+    MAX_REQUESTS_PER_INTERVAL,
+    delay
+)
 
-async def log(
-        *content: object
-    ) -> None:
+RATE_LIMIT_INTERVAL = imports.timedelta(seconds=Interval)
 
-    """logs in console"""
+last_request_time = imports.time.time()
+API_requests = 0
 
-    if logging is False:
-        return
+async def avoid_rate_limits():
+    """
+    Handles rate limits for `JartexNetwork`'s API.
+    """
+    global API_requests, last_request_time
 
-    print(' '.join(map(str, content)))
+    current_time = imports.time.time()
+    time_difference = current_time - last_request_time
+
+    if time_difference > RATE_LIMIT_INTERVAL.total_seconds():
+        API_requests = 0
+        last_request_time = current_time
+
+    API_requests += 1
+
+    if API_requests > MAX_REQUESTS_PER_INTERVAL:
+        imports.asyncio.create_task(log('Max request per interval reached: Delayed for', delay))
+        await imports.asyncio.sleep(delay)
+        API_requests = 0
+        last_request_time = imports.time.time()

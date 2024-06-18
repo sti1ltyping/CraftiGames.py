@@ -22,11 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from PikaPY.utils import imports, UnixTimestamp #type: ignore
 
-class PikaNetworkStatus:
+from CraftiGames.utils import imports # type: ignore
+
+
+class History:
     """
-    Wrap PikaNetwork Status
+    Wraps Punishment History
     ~~~~~
 
     ==================================================================================================
@@ -53,37 +55,68 @@ class PikaNetworkStatus:
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE."""
 
-    def __init__(self, data):
-        self.raw: dict = data
+    def __init__(self, html_) -> None:
+        self.__html_parser__: str = html_
 
-    @property
-    def ip(self) -> str:
-        """
-        Returns:
-        - IP of the server.
-        """
-        return self.raw.get("ip", '')
 
-    @property
-    def player_count(self) -> int:
-        """
-        Returns:
-        - Player count of the server.
-        """
-        return int(self.raw.get("count", 0))
+    def bans(
+            self,
+            list_console: bool = True
+            ) -> dict:
+        return self.all(list_console, "ban")
     
-    @property
-    def discord_count(self) -> int:
-        """
-        Returns:
-        - Member count of the discord server.
-        """
-        return int(self.raw.get("discordCount", 0))
+    def warns(
+            self,
+            list_console: bool = True
+            ) -> dict:
+        return self.all(list_console, "warn")
     
-    @property
-    def updated_at(self) -> UnixTimestamp:
-        """
-        Returns:
-        - UnixTimestamp (usable in discord timestamp) of last updated.
-        """
-        return int(imports.parser.isoparse(self.raw.get("updated_at")).timestamp())
+    def kicks(
+            self,
+            list_console: bool = True
+            ) -> dict:
+        return self.all(list_console, "kick")
+    
+    def mutes(
+            self,
+            list_console: bool = True
+            ) -> dict:
+        return self.all(list_console, "mute")
+
+    def all(
+            self, 
+            list_console: bool = True,
+            punishement_type: imports.Literal["all", "ban", "warn", "kick", "mute"] = "all"
+            ) -> dict:
+
+        soup = imports.BeautifulSoup(self.__html_parser__, 'html.parser')
+        player = soup.title.string[:-28] if soup.title is not None else "Not found"
+        punishments: dict = {}
+        prow = []
+        for row in soup.find_all(class_='row'):
+            row: imports.BeautifulSoup
+
+            reason = row.find(class_='_reason').text.strip()
+            date = row.find(class_='_date').text.strip()
+            expires = row.find(class_='_expires').text.strip()
+            ptype = row.find(class_='_type').find('b').text.strip()
+            by = row.find(class_='user-link').text.strip()
+            
+            if list_console is False and by.lower() == 'console':
+                continue
+            
+            if punishement_type.lower() != 'all' and ptype.lower() != punishement_type.lower():
+                continue
+
+            prow.append(
+                {
+                    "Reason": reason,
+                    "Date": date,
+                    "Expires": expires,
+                    "Type": ptype,
+                    "By": by
+                }
+            )
+        punishments[player] = prow
+
+        return punishments

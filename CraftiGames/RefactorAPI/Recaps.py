@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from PikaPY.utils import imports, UnixTimestamp
+from CraftiGames.utils import imports, UnixTimestamp
 
 class player: ...
 class value: ...

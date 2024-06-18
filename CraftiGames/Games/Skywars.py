@@ -22,11 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from PikaPY.Games import Stats # type: ignore
+from CraftiGames.Games import Stats # type: ignore
 
-class Rankedpractice:
+class Skywars:
     """
-    Wraps RankedPractice
+    Wraps Skywars
     ~~~~~
 
     ==================================================================================================
@@ -52,11 +52,10 @@ class Rankedpractice:
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE."""
-
-    def __init__(self, data):
+    
+    def __init__(self, data: dict):
         self.raw: dict = data
         self.__stats__: Stats = Stats(self.raw)
-
 
     @property
     def wins(self) -> int:
@@ -149,48 +148,50 @@ class Rankedpractice:
         )
 
     @property
-    def hits_dealt(self) -> int:
+    def deaths(self) -> int:
         """
         Returns
-        - Number of hits dealt. (int)
+        - Number of deaths. (int)
         """
-        return self.__stats__._hits_dealt(
+        return self.__stats__._deaths(
             value=True,
             leaderboard=False
         )
-    
+
     @property
-    def hits_dealt_lb(self) -> int:
+    def deaths_lb(self) -> int:
         """
         Returns
-        - Leaderboard position based on number of hits dealt. (int)
+        - Leaderboard position based on number of deaths. (int)
         """
-        return self.__stats__._hits_dealt(
+        return self.__stats__._deaths(
             value=False,
             leaderboard=True
         )
 
     @property
-    def hits_taken(self) -> int:
+    def kdr(self) -> int:
         """
         Returns
-        - Number of hits taken. (int)
+        - Kill is to death ratio. (float)
         """
-        return self.__stats__._hits_taken(
-            value=True,
-            leaderboard=False
-        )
-    
+        return self.__stats__._kdr()
+
     @property
-    def hits_taken_lb(self) -> int:
+    def kill_rate(self) -> float:
         """
         Returns
-        - Leaderboard position based on number of hits taken. (int)
+        - kill rate, calculated using previous kills & deaths. (float)
         """
-        return self.__stats__._hits_taken(
-            value=False,
-            leaderboard=True
-        )
+        return self.__stats__._kill_rate()
+
+    @property
+    def death_rate(self) -> float:
+        """
+        Returns
+        - death rate, calculated using previous kills & deaths. (float)
+        """
+        return self.__stats__._death_rate()
 
     @property
     def highest_winstreak_reached(self) -> int:
@@ -237,290 +238,91 @@ class Rankedpractice:
         )
 
     @property
-    def games_played(self) -> int:
+    def arrows_shot(self) -> int:
         """
         Returns
-        - Number of games played. (int)
+        - Number of arrows shot. (int)
         """
-        return self.__stats__._games_played(
+        return self.__stats__._arrows_shot(
             value=True,
             leaderboard=False
         )
 
     @property
-    def games_played_lb(self) -> int:
+    def arrows_shot_lb(self) -> int:
         """
         Returns
-        - Leaderboard position based on number of games played. (int)
+        - Leaderboard position based on number of arrows shot. (int)
         """
-        return self.__stats__._games_played(
+        return self.__stats__._arrows_shot(
             value=False,
             leaderboard=True
         )
 
     @property
-    def void_kills(self) -> int:
+    def arrows_hit(self) -> int:
         """
         Returns
-        - Number of void kills. (int)
+        - Number of arrows hit. (int)
         """
-        return self.__stats__._void_kills(
+        return self.__stats__._arrows_hit(
             value=True,
             leaderboard=False
         )
 
     @property
-    def void_kills_lb(self) -> int:
+    def arrows_hit_lb(self) -> int:
         """
         Returns
-        - Leaderboard position based on number of void kills. (int)
+        - Leaderboard position based on number of arrows hit. (int)
         """
-        return self.__stats__._void_kills(
+        return self.__stats__._arrows_hit(
             value=False,
             leaderboard=True
         )
 
     @property
-    def elo(self) -> int:
+    def ahr(self) -> float:
         """
         Returns
-        - Number of elo. (int)
+        - Arrow hit ratio. (float)
         """
-        return self.__stats__._elo(
-            value=True,
-            leaderboard=False
-        )
-    
+        return self.__stats__._ahr()
+
     @property
-    def elo_lb(self) -> int:
+    def arrow_hit_rate(self) -> float:
         """
         Returns
-        - Leaderboard position based on number of elo. (int)
+        - Arrow hit rate, calculated using previous arrows shot & arrows hit. (float)
         """
-        return self.__stats__._elo(
-            value=False,
-            leaderboard=True
-        )
+        return self.__stats__._arrow_hit_rate()
 
     @property
-    def exploited(self) -> int:
-        """
-        Number of number of games left `/hub`.
-
-        Returns:
-        - Number of games left unplayed.
-        """
-        return self.__stats__._exploited()
-    
-
-class Unrankedpractice:
-    """
-    Wraps UnrankedPractice
-    ~~~~~
-
-    ==================================================================================================
-
-    MIT License
-
-    Copyright (c) 2024 sti1ltyping
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE."""
-    
-    def __init__(self, data):
-        self.raw: dict = data
-        self.__stats__: Stats = Stats(self.raw)
-
-
-    @property
-    def wins(self) -> int:
+    def arrow_miss_rate(self) -> float:
         """
         Returns
-        - Number of wins. (int)
+        - Arrow miss rate, calculated using previous arrows shot & arrows hit. (float)
         """
-        return self.__stats__._wins(
+        return self.__stats__._arrow_miss_rate()
+
+    @property
+    def melee_kills(self) -> int:
+        """
+        Returns
+        - Number of melee kills. (int)
+        """
+        return self.__stats__._melee_kills(
             value=True,
             leaderboard=False
         )
 
     @property
-    def wins_lb(self) -> int:
+    def melee_kills_lb(self) -> int:
         """
         Returns
-        - Leaderboard position based on number of wins. (int)
+        - Leaderboard position based on number of melee kills. (int)
         """
-        return self.__stats__._wins(
-            value=False,
-            leaderboard=True
-        )
-
-    @property
-    def losses(self) -> int:
-        """
-        Returns
-        - Number of losses. (int)
-        """
-        return self.__stats__._losses(
-            value=True,
-            leaderboard=False
-        )
-
-    @property
-    def losses_lb(self) -> int:
-        """
-        Returns
-        - Leaderboard position based on number of losses. (int)
-        """
-        return self.__stats__._losses(
-            value=False,
-            leaderboard=True
-        )
-
-    @property
-    def wlr(self) -> float:
-        """
-        Returns
-        - Wins is to losses ratio. (float)
-        """
-        return self.__stats__._wlr()
-
-    @property
-    def win_rate(self) -> float:
-        """
-        Returns
-        - Win rate, calculated using previous wins & losses. (float)
-        """
-        return self.__stats__._win_rate()
-
-    @property
-    def lose_rate(self) -> float:
-        """
-        Returns
-        - Lose rate, calculated using previous wins & losses. (float)
-        """
-        return self.__stats__._lose_rate()
-
-    @property
-    def kills(self) -> int:
-        """
-        Returns
-        - Number of kills. (int)
-        """
-        return self.__stats__._kills(
-            value=True,
-            leaderboard=False
-        )
-
-    @property
-    def kills_lb(self) -> int:
-        """
-        Returns
-        - Leaderboard position based on number of kills. (int)
-        """
-        return self.__stats__._kills(
-            value=False,
-            leaderboard=True
-        )
-
-    @property
-    def hits_dealt(self) -> int:
-        """
-        Returns
-        - Number of hits dealt. (int)
-        """
-        return self.__stats__._hits_dealt(
-            value=True,
-            leaderboard=False
-        )
-    
-    @property
-    def hits_dealt_lb(self) -> int:
-        """
-        Returns
-        - Leaderboard position based on number of hits dealt. (int)
-        """
-        return self.__stats__._hits_dealt(
-            value=False,
-            leaderboard=True
-        )
-
-    @property
-    def hits_taken(self) -> int:
-        """
-        Returns
-        - Number of hits taken. (int)
-        """
-        return self.__stats__._hits_taken(
-            value=True,
-            leaderboard=False
-        )
-    
-    @property
-    def hits_taken_lb(self) -> int:
-        """
-        Returns
-        - Leaderboard position based on number of hits taken. (int)
-        """
-        return self.__stats__._hits_taken(
-            value=False,
-            leaderboard=True
-        )
-
-    @property
-    def highest_winstreak_reached(self) -> int:
-        """
-        Returns
-        - highest winsteak reached. (int)
-        """
-        return self.__stats__._highest_winstreak_reached(
-            value=True,
-            leaderboard=False
-        )
-    
-    @property
-    def highest_winstreak_reached_lb(self) -> int:
-        """
-        Returns
-        - Leaderboard position based on highest winstreak. (int)
-        """
-        return self.__stats__._highest_winstreak_reached(
-            value=False,
-            leaderboard=True
-        )
-
-    @property
-    def bow_kills(self) -> int:
-        """
-        Returns
-        - Number of bow kills. (int)
-        """
-        return self.__stats__._bow_kills(
-            value=True,
-            leaderboard=False
-        )
-
-    @property
-    def bow_kills_lb(self) -> int:
-        """
-        Returns
-        - Leaderboard position based on number of bow kills. (int)
-        """
-        return self.__stats__._bow_kills(
+        return self.__stats__._melee_kills(
             value=False,
             leaderboard=True
         )
@@ -567,17 +369,6 @@ class Unrankedpractice:
         return self.__stats__._void_kills(
             value=False,
             leaderboard=True
-        )
-
-    @property
-    def elo(self) -> int:
-        """
-        Returns
-        - Number of elo. (int)
-        """
-        return self.__stats__._elo(
-            value=True,
-            leaderboard=False
         )
 
     @property

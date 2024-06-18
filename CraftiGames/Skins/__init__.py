@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from PikaPY.utils import imports # type: ignore
-from PikaPY.utils import default_skins # type: ignore
+from CraftiGames.utils import imports # type: ignore
+from CraftiGames.utils import default_skins # type: ignore
 
 
 class SkinTypes:

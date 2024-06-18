@@ -22,11 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from PikaPY.utils import imports, UnixTimestamp # type: ignore
+from CraftiGames.utils import imports, UnixTimestamp #type: ignore
 
-class Guild:
+class NetworkStatus:
     """
-    Wraps guild API
+    Wrap PikaNetwork Status
     ~~~~~
 
     ==================================================================================================
@@ -51,88 +51,39 @@ class Guild:
     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
-    """
-        
+    SOFTWARE."""
+
     def __init__(self, data):
         self.raw: dict = data
 
     @property
-    def name(self) -> str:
+    def ip(self) -> str:
         """
         Returns:
-        - Guild's name.
+        - IP of the server.
         """
-        return self.raw.get("name", '')
-        
-    @property
-    def tag(self) -> str:
-        """
-        Returns:
-        - Guild's tag.
-        """
-        return self.raw.get("tag", '')
-        
-    @property
-    def leader(self) -> str:
-        """
-        Returns:
-        - Guild's leader's username.
-        """
-        return self.raw.get("owner", {}).get("username", '')
+        return self.raw.get("ip", '')
 
     @property
-    def link(self) -> str:
+    def player_count(self) -> int:
         """
         Returns:
-        - PikaNetwork link to the leader's profile.
+        - Player count of the server.
         """
-        return f"https://stats.pika-network.net/player/{self.leader}"
-        
-    @property
-    def level(self) -> int:
-        """
-        Returns:
-        - Guild's level.
-        """
-        return int(self.raw.get("leveling",{}).get("level", 0))
+        return int(self.raw.get("count", 0))
     
     @property
-    def exp(self) -> int:
+    def discord_count(self) -> int:
         """
         Returns:
-        - Guild's exp.
+        - Member count of the discord server.
         """
-        return int(self.raw.get("leveling",{}).get("exp", 0))
+        return int(self.raw.get("discordCount", 0))
     
     @property
-    def totalexp(self) -> int:
+    def updated_at(self) -> UnixTimestamp:
         """
         Returns:
-        - Guild's total exp.
+        - UnixTimestamp (usable in discord timestamp) of last updated.
         """
-        return int(self.raw.get("leveling",{}).get("totalExp", 0))
-        
-    @property
-    def member_list(self) -> list:
-        """
-        Returns:
-        - Guild member's list.
-        """    
-        return [username["user"]["username"] for username in self.raw.get("members", [])]
-        
-    @property
-    def member_count(self) -> int:
-        """
-        Returns:
-        - Member count of the guild.
-        """
-        return len(self.member_list)
-    
-    @property
-    def created_at(self) -> UnixTimestamp:
-        """
-        Returns:
-        - UnixTimestamp (usable in discord timestamp) of guild's creation date-time.
-        """
-        return int(imports.datetime.timestamp(imports.datetime.fromisoformat(self.raw.get('creationTime', 0))))
+        return int(imports.parser.isoparse(self.raw.get("updated_at")).timestamp())

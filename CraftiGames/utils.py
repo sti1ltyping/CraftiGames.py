@@ -40,6 +40,7 @@ class imports:
     )
     from dateutil import parser
     import configparser
+    import colorama
 
 
 class Weekly:

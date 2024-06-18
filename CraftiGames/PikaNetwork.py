@@ -1,8 +1,3 @@
-# Author: sti1ltyping
-# Discord: sti1ltyping | ID: 840587974000771072
-# Contact: https://discord.gg/B3DQgwUgyT
-
-# THIS API WRAPPER IS MADE BY DEVELOPERS OF Pikachu's Stats#1210 (1112768481956479108)
 """
 MIT License
 
@@ -51,9 +46,9 @@ from .utils import (
 from .utils import header
 
 from .RefactorAPI.Guilds import Guild
-from .RefactorAPI.Profiles import Profile
+from .RefactorAPI.Profiles import PikaProfile
 from .RefactorAPI.Leaderboard import CombinedLeaderboard
-from .RefactorAPI.PikanetworkStatus import PikaNetworkStatus
+from .RefactorAPI.NetworkStatus import NetworkStatus
 from .RefactorAPI.Recaps import Recap
 
 from .Games.Bedwars import Bedwars
@@ -62,7 +57,7 @@ from .Games.Practice import Unrankedpractice, Rankedpractice
 
 from .Punishments import History
 
-from .Ratelimits import avoid_rate_limits
+from .Ratelimits import pikanetwork as pr_
 
 from .ResponseError import faulty
 
@@ -84,7 +79,7 @@ from .utils import (
 )
 
 from typing import (
-    Union, Literal, List
+    Union, Literal, List, Tuple
 )
 
 
@@ -94,13 +89,13 @@ class PikaAnnotations:
     ~~~~~~~~
     =============
 
-    - Represents `TypeAnnotation` for this API wrapper.
+    - Represents `TypeAnnotation` for PikaNetwork's API wrapper.
     """
     Stats = Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice]
-    Profile = Profile
+    Profile = PikaProfile
     Guild  = Guild
     Punishments = History
-    Status = PikaNetworkStatus
+    Status = NetworkStatus
     Recap = Recap
     Pikanetwork: 'Pikanetwork' = None, ...
     PikaAnnotations: 'PikaAnnotations' = None, ...
@@ -156,13 +151,13 @@ class Pikanetwork:
         ~~~~~~~~
         =============
 
-        - Represents `TypeAnnotation` for this API wrapper.
+        - Represents `TypeAnnotation` for PikaNetwork's API wrapper.
         """
         Stats = Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice]
-        Profile = Profile
+        Profile = PikaProfile
         Guild  = Guild
         Punishments = History
-        Status = PikaNetworkStatus
+        Status = NetworkStatus
         Recap = Recap
         Pikanetwork: 'Pikanetwork' = None, ...
         PikaAnnotations: 'PikaAnnotations' = None, ...
@@ -173,7 +168,7 @@ class Pikanetwork:
             player: str,
             *,
             Recursion: 'Do_Not_Touch' = 0
-            ) -> Union[Profile, None]:
+            ) -> Union[PikaProfile, None]:
         """
         Profile API
         ~~~~~~~~~
@@ -234,17 +229,17 @@ class Pikanetwork:
 
         asyncio.run(example())
         """
-        await avoid_rate_limits()
+        await pr_.avoid_rate_limits()
         async with self.session.get(f'https://stats.pika-network.net/api/profile/{player}') as resp:
 
             status = resp.status
 
             if status == 200:
-                return Profile(await resp.json(), session=self.session)
+                return PikaProfile(await resp.json(), session=self.session)
 
             elif status == 429 and Recursion <= Allowed_Recursion:
                 Recursion += 1
-                imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                imports.asyncio.create_task(log('Exceeded ratelimit:', Recursion, 'X'))
                 await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Profile(player)
 
@@ -320,7 +315,7 @@ class Pikanetwork:
             player, gamemode, interval, mode = str(player), gamemode.lower(), interval.lower(), mode.upper()
             Check().__stats_input__(gamemode, interval, mode)
 
-        await avoid_rate_limits()
+        await pr_.avoid_rate_limits()
         async with self.session.get(f'https://stats.pika-network.net/api/profile/{player}/leaderboard?type={gamemode}&interval={interval}&mode={mode}') as resp:
 
             status = resp.status
@@ -414,7 +409,7 @@ class Pikanetwork:
 
         asyncio.run(example())
         """
-        await avoid_rate_limits()
+        await pr_.avoid_rate_limits()
         async with self.session.get(f'https://stats.pika-network.net/api/clans/{guild}') as resp:
 
             status = resp.status
@@ -450,7 +445,7 @@ class Pikanetwork:
             Recursion: 'Do_Not_Touch' = 0
         ) -> Union[dict, None]:
 
-        await avoid_rate_limits()
+        await pr_.avoid_rate_limits()
         async with self.session.get(f'https://stats.pika-network.net/api/leaderboards?type={gamemode}&stat={stats}&interval={interval}&mode={mode}&offset={offset}&limit={limit}') as resp:
             
             status = resp.status
@@ -509,7 +504,7 @@ class Pikanetwork:
             self,
             *,
             Recursion: 'Do_Not_Touch' = 0
-        ) -> PikaNetworkStatus:
+        ) -> NetworkStatus:
         """
         Network Status API
         ~~~~~~~~~~
@@ -517,10 +512,10 @@ class Pikanetwork:
         Returns:
         - 'PikaNetworkStatus'
         """
-        await avoid_rate_limits()
+        await pr_.avoid_rate_limits()
         async with self.session.get("https://api.craftigames.net/count/play.pika-network.net") as resp:
             if resp.status == 200:
-                return PikaNetworkStatus(imports.json.loads(await resp.text()))
+                return NetworkStatus(imports.json.loads(await resp.text()))
             elif Recursion <= Allowed_Recursion:
                 Recursion += 1
                 imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
@@ -547,7 +542,7 @@ class Pikanetwork:
         - Recap (class) if the correct key (recap_id) has been passed.
         - None if the the key (recap_id) is invaild.
         """
-        await avoid_rate_limits()
+        await pr_.avoid_rate_limits()
         async with self.session.get(f"https://stats.pika-network.net/api/recaps/{key}") as resp:
 
             status = resp.status
@@ -612,7 +607,7 @@ class Pikanetwork:
         
         asyncio.run(Example(player='AnyPlayer'))
         """
-        await avoid_rate_limits()
+        await pr_.avoid_rate_limits()
         async with self.session.get(f'https://pika-network.net/bans/search/{player}/') as resp:
             status = resp.status
 
@@ -703,7 +698,7 @@ class Pikanetwork:
             gamemode: Literal["bedwars", "skywars", "unrankedpractice", "rankedpractice"],
             interval: Literal["weekly", "monthly", "yearly", "total"],
             mode: Literal["all_modes", "solo", "doubles", "triples", "quad"]
-            ) -> list[tuple[str, Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice]]]:
+            ) -> List[Tuple[str, Union[Bedwars, Skywars, Unrankedpractice, Rankedpractice]]]:
         """
         Multiple stats
         ~~~~~~~~~~~~~~
@@ -768,7 +763,7 @@ class Pikanetwork:
             self,
             api: 'Pikanetwork',
             guilds: List[str],
-            ) -> list[tuple[str, 'Guild']]:
+            ) -> List[Tuple[str, 'Guild']]:
         """
         Multiple Guilds
         ~~~~~~~~~~~~~~
@@ -830,7 +825,7 @@ class Pikanetwork:
             self,
             api: 'Pikanetwork',
             ids: List[str]
-        ) -> list[tuple[str, 'Recap']]:
+        ) -> List[Tuple[str, 'Recap']]:
         """
         Multiple Guilds
         ~~~~~~~~~~~~~~

@@ -22,37 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+from CraftiGames.utils import logging # type: ignore
+from CraftiGames.utils import imports # type: ignore
 
-from PikaPY._Logger import log  # type: ignore
-from PikaPY.utils import imports  # type: ignore
-from PikaPY.utils import (  # type: ignore
-    Interval,
-    MAX_REQUESTS_PER_INTERVAL,
-    delay
-)
 
-RATE_LIMIT_INTERVAL = imports.timedelta(seconds=Interval)
+async def log(
+        *content: object
+    ) -> None:
 
-last_request_time = imports.time.time()
-API_requests = 0
+    """logs in console"""
 
-async def avoid_rate_limits():
-    """
-    Handles rate limits
-    """
-    global API_requests, last_request_time
+    if logging is False:
+        return
 
-    current_time = imports.time.time()
-    time_difference = current_time - last_request_time
-
-    if time_difference > RATE_LIMIT_INTERVAL.total_seconds():
-        API_requests = 0
-        last_request_time = current_time
-
-    API_requests += 1
-
-    if API_requests > MAX_REQUESTS_PER_INTERVAL:
-        imports.asyncio.create_task(log('Max request per interval reached: Delayed for', delay))
-        await imports.asyncio.sleep(delay)
-        API_requests = 0
-        last_request_time = imports.time.time()
+    print(imports.colorama.Fore.MAGENTA + imports.colorama.Style.BRIGHT + ' '.join(map(str, content)))
