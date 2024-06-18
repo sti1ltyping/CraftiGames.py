@@ -8,14 +8,14 @@ with open('README.md') as README_file:
     description = README_file.read()
 
 setup(
-    name='PikaPY',
+    name='CraftiGames',
     version='1.1.1',
     author='sti1ltyping',
     author_email='sti1ltyping.chillax@gmail.com',
-    url='https://github.com/sti1ltyping/PikaPY',
+    url='https://github.com/sti1ltyping/CraftiGames',
     packages=find_packages(),
     license='MIT',
-    description='A Python based API wrapper for PikaNetwork',
+    description='A Python based API wrapper for CraftiGames community',
     long_description=description,
     long_description_content_type='text/markdown',
     include_package_data=True,

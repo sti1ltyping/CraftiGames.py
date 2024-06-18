@@ -1,4 +1,4 @@
- CraftiGames
+CraftiGames
 ==========
 
 Pikanetwork API Wrapper
@@ -7,10 +7,10 @@ A easy to use, feature-rich, and Asynchronous warpping.
 Key Features
 -------------
 
-- Wraps Pikanetwork's API Asynchronously.
+- Wraps Pikanetwork's and JartexNetwork's API Asynchronously.
 - Fast and efficient.
 - Handles Ratelimits, ResponseErrors, faulty response.
-- Covers all parts of PikaNetwork's API (https://stats.pika-network.net/api)
+- Covers all parts of [`PikaNetwork's`](https://stats.pika-network.net/api) and [`JartexNetwork's`](https://stats.jartexnetwork.com/api)
 
 
 Credits
@@ -106,7 +106,7 @@ asyncio.run(main())
 
 
 ```python
-from PikaPY import Pikanetwork, PikaAnnotations
+from CraftiGames import Pikanetwork, PikaAnnotations
 import asyncio
 
 
@@ -156,7 +156,7 @@ asyncio.run(main())
 
 
 ```python
-from PikaPY import Pikanetwork, PikaAnnotations
+from CraftiGames import Pikanetwork, PikaAnnotations
 import asyncio
 
 
@@ -205,7 +205,7 @@ asyncio.run(main())
 
 
 ```python
-from PikaPY import Pikanetwork, PikaAnnotations
+from CraftiGames import Pikanetwork, PikaAnnotations
 import asyncio
 
 # PikaPY automates batch processing.
