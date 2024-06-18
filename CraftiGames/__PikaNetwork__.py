@@ -243,7 +243,7 @@ class Pikanetwork:
                 await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Profile(player)
 
-            elif status == 400 or status == 204:
+            elif status == 400 or status == 204 or status == 404:
                 imports.asyncio.create_task(log(player, ' not found!'))
                 return None
             
@@ -350,7 +350,7 @@ class Pikanetwork:
                 imports.asyncio.create_task(log(player, ' is hidden from the API!'))
                 return None
             
-            elif status == 400:
+            elif status == 400 or status == 404:
                 imports.asyncio.create_task(log(player, ' not found!'))
                 return None
             
@@ -425,7 +425,7 @@ class Pikanetwork:
                 await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Guild(guild)
             
-            elif status == 400 or status == 204:
+            elif status == 400 or status == 204  or status == 404:
                 imports.asyncio.create_task(log(guild, ' not found!'))
                 return None
             
@@ -462,7 +462,7 @@ class Pikanetwork:
                 await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.__leaderboard__helper__(gamemode, stats, interval, mode, offset, limit, Recursion=Recursion)
             
-            elif status == 400 or status == 204:
+            elif status == 400 or status == 204  or status == 404:
                 return None
             
             elif status == 403:
@@ -554,6 +554,7 @@ class Pikanetwork:
                 return Recap(await resp.json())
             
             elif status == 404 or status == 400 or status == 204:
+                imports.asyncio.create_task(log(key, ': recap not found!'))
                 return None
             
             elif status == 429 and Recursion <= allowed_recursion:
