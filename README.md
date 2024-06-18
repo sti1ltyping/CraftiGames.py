@@ -21,6 +21,16 @@ Credits
 
 - This API wrapper is developed by the dedicated development team of  [`Pikachu's Stats`](https://discord.com/oauth2/authorize?client_id=1112768481956479108&permissions=563914781097033&scope=bot). This same wrapper is utilized within the application.
 
+
+Installing
+----------
+.. code:: sh
+
+    pip install CraftiGames
+
+.. code:: sh
+
+
 EXAMPLES
 ====
 
