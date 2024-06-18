@@ -216,7 +216,7 @@ asyncio.run(main())
 from CraftiGames import Pikanetwork, PikaAnnotations
 import asyncio
 
-# PikaPY automates batch processing.
+# CraftiGames automates batch processing.
 # No matter how big the lists are it will automatically break it into batches and fetch the responses.
 players = ["Fireor", "fwgazes", "ignLone"]
 guilds = ["RIP", "EKITTENS", "Menace"]
