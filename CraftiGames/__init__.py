@@ -31,7 +31,7 @@ __title__ = 'CraftGames'
 __author__ = 'sti1ltyping'
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) 2024 sti1ltyping'
-__version__ = '1.2.1'
+__version__ = '1.2.2'
 
 from typing import NamedTuple, Literal
 
