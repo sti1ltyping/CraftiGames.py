@@ -288,7 +288,7 @@ config.update(
 )
 ```
 
-![image](https://github.com/sti1ltyping/CraftiGames/assets/152976324/868b99af-d927-4bab-8a40-7fc7b86e10c7)
+![image](https://github.com/sti1ltyping/CraftiGames/assets/152976324/62120b02-9eb9-4cf0-ab14-fc818e6345c6)
 
 
 **How to reset to default configuration**
