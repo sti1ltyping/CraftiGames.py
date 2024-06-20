@@ -275,7 +275,7 @@ How to Change Configuration
 ```python
 from CraftiGames import config
 
-config(
+config.update(
     Logging = True,
     Allowed_Recursion = 50,
     Batch_Size = 25,
@@ -296,7 +296,7 @@ config(
 ```python
 from CraftiGames import config
 
-config() # reset config to default settings
+config.update() # reset config to default settings
 ```
 
 

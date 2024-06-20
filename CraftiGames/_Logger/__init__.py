@@ -22,17 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from CraftiGames.utils import imports # type: ignore
+from CraftiGames.utils import packages, config # type: ignore
 
+logging = config.logging
 
 async def log(
         *content: object
     ) -> None:
 
     """logs in console"""
-    
-    config = imports.configparser.ConfigParser()
-    config.read('CraftiGames/settings.ini')
-    logging = config.getboolean('DEFAULT', 'Logging', fallback=False)
 
-    return print(imports.colorama.Fore.YELLOW + imports.colorama.Style.BRIGHT + 'CraftiGames: ' + imports.colorama.Fore.MAGENTA + imports.colorama.Style.BRIGHT + ''.join(map(str, content)) + imports.colorama.Fore.RESET + imports.colorama.Style.RESET_ALL) if logging is True else None
+    return print(packages.colorama.Fore.YELLOW + packages.colorama.Style.BRIGHT + 'CraftiGames: ' + packages.colorama.Fore.MAGENTA + packages.colorama.Style.BRIGHT + ''.join(map(str, content)) + packages.colorama.Fore.RESET + packages.colorama.Style.RESET_ALL) if logging is True else None

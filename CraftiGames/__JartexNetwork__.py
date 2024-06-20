@@ -35,7 +35,7 @@ from .utils import (
     Quadriples as Quadriples
 )
 
-from .utils import imports
+from .utils import packages
 
 from .utils import (
     Gamemodes as Gamemodes,
@@ -64,12 +64,7 @@ from .ResponseError import faulty
 
 from ._Logger import log
 
-from .utils import (
-    allowed_recursion,
-    batch_size,
-    batch_delay,
-    delay_after_exceeding_ratelimit
-)
+from .utils import config
 
 from .utils import Check
 
@@ -82,6 +77,12 @@ from .utils import (
 from typing import (
     Union, Literal, List, Tuple
 )
+
+
+allowed_recursion = config
+batch_size = config.batch_size
+batch_delay = config.batch_delay
+delay_after_exceeding_ratelimit = config.delay_after_exceeding_ratelimit
 
 
 class JartexAnnotations:
@@ -138,7 +139,7 @@ class Jartexnetwork:
         self.cache = {...}
 
     async def __aenter__(self):
-        self.session = imports.aiohttp.ClientSession(headers = await header())
+        self.session = packages.aiohttp.ClientSession(headers = await header())
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
@@ -239,12 +240,12 @@ class Jartexnetwork:
 
             elif status == 429 and Recursion <= allowed_recursion:
                 Recursion += 1
-                imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
-                await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
+                packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Profile(player)
 
             elif status == 400 or status == 204 or status == 404:
-                imports.asyncio.create_task(log(player, ' not found!'))
+                packages.asyncio.create_task(log(player, ' not found!'))
                 return None
             
             elif status == 403:
@@ -326,7 +327,7 @@ class Jartexnetwork:
 
                 if await faulty(data) and Recursion <= allowed_recursion:
                     Recursion += 1
-                    imports.asyncio.create_task(log('Faulty Stats detected: ', Recursion, 'X'))
+                    packages.asyncio.create_task(log('Faulty Stats detected: ', Recursion, 'X'))
                     return await self.Stats(player, gamemode, interval, mode, Recursion=Recursion)
 
                 return {
@@ -340,16 +341,16 @@ class Jartexnetwork:
 
             elif status == 429 and Recursion <= allowed_recursion:
                 Recursion += 1
-                imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
-                await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
+                packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Stats(player, gamemode, interval, mode, Recursion=Recursion)
             
             elif status == 204:
-                imports.asyncio.create_task(log(player, ' is hidden from the API!'))
+                packages.asyncio.create_task(log(player, ' is hidden from the API!'))
                 return None
             
             elif status == 400 or status == 404:
-                imports.asyncio.create_task(log(player, ' not found!'))
+                packages.asyncio.create_task(log(player, ' not found!'))
                 return None
             
             elif status == 403:
@@ -419,12 +420,12 @@ class Jartexnetwork:
             
             elif status == 429 and Recursion <= allowed_recursion:
                 Recursion += 1
-                imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
-                await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
+                packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Clan(clan)
             
             elif status == 400 or status == 204 or status == 404:
-                imports.asyncio.create_task(log(clan, ' not found!'))
+                packages.asyncio.create_task(log(clan, ' not found!'))
                 return None
             
             elif status == 403:
@@ -456,8 +457,8 @@ class Jartexnetwork:
             
             elif status == 429 and Recursion <= allowed_recursion:
                 Recursion += 1
-                imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
-                await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
+                packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.__leaderboard__helper__(gamemode, stats, interval, mode, offset, limit, Recursion=Recursion)
             
             elif status == 400 or status == 204 or status == 404:
@@ -498,7 +499,7 @@ class Jartexnetwork:
             Leaderboard_.append(self.__leaderboard__helper__(gamemode, stats, interval, mode, offset, 25))
             offset += 25
 
-        return CombinedLeaderboard(await imports.asyncio.gather(*[task for task in Leaderboard_])).__Leaderboard__()
+        return CombinedLeaderboard(await packages.asyncio.gather(*[task for task in Leaderboard_])).__Leaderboard__()
 
     
     async def Status(
@@ -516,11 +517,11 @@ class Jartexnetwork:
         await jr_.avoid_rate_limits()
         async with self.session.get("https://api.craftigames.net/count/play.jartexnetwork.com") as resp:
             if resp.status == 200:
-                return NetworkStatus(imports.json.loads(await resp.text()))
+                return NetworkStatus(packages.json.loads(await resp.text()))
             elif Recursion <= allowed_recursion:
                 Recursion += 1
-                imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
-                await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
+                packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Status()
             else:
                 return None
@@ -552,13 +553,13 @@ class Jartexnetwork:
                 return Recap(await resp.json())
             
             elif status == 404 or status == 400 or status == 204:
-                imports.asyncio.create_task(log(key, ': recap not found!'))
+                packages.asyncio.create_task(log(key, ': recap not found!'))
                 return None
             
             elif status == 429 and Recursion <= allowed_recursion:
                 Recursion += 1
-                imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
-                await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
+                packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Recap(key, Recursion=Recursion)
             
             elif status == 403:
@@ -619,8 +620,8 @@ class Jartexnetwork:
             elif status == 429 and Recursion <= allowed_recursion:
 
                 Recursion += 1
-                imports.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
-                await imports.asyncio.sleep(delay_after_exceeding_ratelimit)
+                packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Punishment(player)
             
             elif status == 403:
@@ -680,7 +681,7 @@ class Jartexnetwork:
 
         for i in range(0, len(players), batch_size):
             batch_members = players[i:i + batch_size]
-            batch_member_stats = await imports.asyncio.gather(*(api.Profile(member) for member in batch_members))
+            batch_member_stats = await packages.asyncio.gather(*(api.Profile(member) for member in batch_members))
             for member, member_stats in zip(batch_members, batch_member_stats):
                 if member_stats is None:
                     profile.append((member, None))
@@ -688,7 +689,7 @@ class Jartexnetwork:
 
                 profile.append((member, member_stats))
 
-            await imports.asyncio.sleep(batch_delay)
+            await packages.asyncio.sleep(batch_delay)
 
         return profile
     
@@ -748,7 +749,7 @@ class Jartexnetwork:
 
         for i in range(0, len(players), batch_size):
             batch_members = players[i:i + batch_size]
-            batch_member_stats = await imports.asyncio.gather(*(api.Stats(member, gamemode, interval, mode) for member in batch_members))
+            batch_member_stats = await packages.asyncio.gather(*(api.Stats(member, gamemode, interval, mode) for member in batch_members))
             for member, member_stats in zip(batch_members, batch_member_stats):
                 if member_stats is None:
                     stats.append((member, None))
@@ -756,7 +757,7 @@ class Jartexnetwork:
 
                 stats.append((member, member_stats))
 
-            await imports.asyncio.sleep(batch_delay)
+            await packages.asyncio.sleep(batch_delay)
 
         return stats
     
@@ -810,7 +811,7 @@ class Jartexnetwork:
 
         for i in range(0, len(guilds), batch_size):
             batch_guilds = guilds[i:i + batch_size]
-            batch_guild_ = await imports.asyncio.gather(*(api.Guild(guild) for guild in batch_guilds))
+            batch_guild_ = await packages.asyncio.gather(*(api.Guild(guild) for guild in batch_guilds))
             for guild, guild_api in zip(batch_guilds, batch_guild_):
                 if guild_api is None:
                     guilds_.append((guild, None))
@@ -818,7 +819,7 @@ class Jartexnetwork:
 
                 guilds_.append((guild, guild_api))
 
-            await imports.asyncio.sleep(batch_delay)
+            await packages.asyncio.sleep(batch_delay)
 
         return guilds_
     
@@ -872,7 +873,7 @@ class Jartexnetwork:
 
         for i in range(0, len(ids), batch_size):
             batch_keys = ids[i:i + batch_size]
-            batch_keys_ = await imports.asyncio.gather(*(api.Recap(key) for key in batch_keys))
+            batch_keys_ = await packages.asyncio.gather(*(api.Recap(key) for key in batch_keys))
             for recap_id, recap_api in zip(batch_keys, batch_keys_):
                 if recap_api is None:
                     recaps.append((recap_id, None))
@@ -880,6 +881,6 @@ class Jartexnetwork:
 
                 recaps.append((recap_id, recap_api))
 
-            await imports.asyncio.sleep(batch_delay)
+            await packages.asyncio.sleep(batch_delay)
 
         return recaps

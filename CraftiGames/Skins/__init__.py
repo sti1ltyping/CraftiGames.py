@@ -22,9 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from CraftiGames.utils import imports # type: ignore
-from CraftiGames.utils import default_skins # type: ignore
+from CraftiGames.utils import packages # type: ignore
+from CraftiGames.utils import config # type: ignore
 
+default_skins = config.default_skins
 
 class SkinTypes:
     """
@@ -55,9 +56,9 @@ class SkinTypes:
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE."""
     
-    def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+    def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
         self.player: str = player
-        self.session: imports.aiohttp.ClientSession = session
+        self.session: packages.aiohttp.ClientSession = session
 
         self.Default = self.Default(self.player, self.session)
         self.Marching = self.Marching(self.player, self.session)
@@ -88,19 +89,19 @@ class SkinTypes:
         self.Skin = self.Skin(self.player, self.session)
 
     class Default:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Default bust image of the player.
 
@@ -114,7 +115,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -128,7 +129,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Default full image of the player.
 
@@ -142,7 +143,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -156,7 +157,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Default face image of the player.
 
@@ -170,7 +171,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -186,19 +187,19 @@ class SkinTypes:
                 
 
     class Marching:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Marching bust image of the player.
 
@@ -212,7 +213,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -226,7 +227,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Marching full image of the player.
 
@@ -240,7 +241,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -254,7 +255,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Marching face image of the player.
 
@@ -268,7 +269,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -284,19 +285,19 @@ class SkinTypes:
 
 
     class Walking:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Walking bust image of the player.
 
@@ -310,7 +311,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -324,7 +325,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Walking full image of the player.
 
@@ -338,7 +339,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -352,7 +353,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Walking face image of the player.
 
@@ -366,7 +367,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -382,19 +383,19 @@ class SkinTypes:
 
     
     class Crouching:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Crouching bust image of the player.
 
@@ -408,7 +409,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -422,7 +423,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Crouching full image of the player.
 
@@ -436,7 +437,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -450,7 +451,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Crouching face image of the player.
 
@@ -464,7 +465,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -480,19 +481,19 @@ class SkinTypes:
                 
 
     class Crossed:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Crossed bust image of the player.
 
@@ -506,7 +507,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -520,7 +521,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Crossed full image of the player.
 
@@ -534,7 +535,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -548,7 +549,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Crossed face image of the player.
 
@@ -562,7 +563,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -578,19 +579,19 @@ class SkinTypes:
                 
 
     class Criss_cross:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Criss cross bust image of the player.
 
@@ -604,7 +605,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -618,7 +619,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Criss cross full image of the player.
 
@@ -632,7 +633,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -646,7 +647,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Criss cross face image of the player.
 
@@ -660,7 +661,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -676,19 +677,19 @@ class SkinTypes:
                 
     
     class Ultimate:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Ultimate bust image of the player.
 
@@ -702,7 +703,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -716,7 +717,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Ultimate full image of the player.
 
@@ -730,7 +731,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -744,7 +745,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Ultimate face image of the player.
 
@@ -758,7 +759,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -774,19 +775,19 @@ class SkinTypes:
                 
 
     class Isometric:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Isometric bust image of the player.
 
@@ -800,7 +801,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -814,7 +815,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Isometric full image of the player.
 
@@ -828,7 +829,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -842,7 +843,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Isometric face image of the player.
 
@@ -856,7 +857,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -870,7 +871,7 @@ class SkinTypes:
                 else:
                     return None
                 
-        async def head(self) -> (imports.BytesIO | None):
+        async def head(self) -> (packages.BytesIO | None):
             """
             Isometric head image of the player.
 
@@ -884,7 +885,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -900,20 +901,20 @@ class SkinTypes:
                 
     
     class Head:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
         
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Head image of the player.
 
@@ -927,7 +928,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -943,19 +944,19 @@ class SkinTypes:
                 
     
     class Custom:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Custom bust image of the player.
 
@@ -969,7 +970,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -983,7 +984,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Custom full image of the player.
 
@@ -997,7 +998,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1011,7 +1012,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Custom face image of the player.
 
@@ -1025,7 +1026,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1041,19 +1042,19 @@ class SkinTypes:
                 
 
     class Cheering:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Cheering bust image of the player.
 
@@ -1067,7 +1068,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1081,7 +1082,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Cheering full image of the player.
 
@@ -1095,7 +1096,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1109,7 +1110,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Cheering face image of the player.
 
@@ -1123,7 +1124,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1139,19 +1140,19 @@ class SkinTypes:
                 
 
     class Relaxing:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Relaxing bust image of the player.
 
@@ -1165,7 +1166,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1179,7 +1180,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Relaxing full image of the player.
 
@@ -1193,7 +1194,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1207,7 +1208,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Relaxing face image of the player.
 
@@ -1221,7 +1222,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1237,19 +1238,19 @@ class SkinTypes:
                 
     
     class Trudging:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Trudging bust image of the player.
 
@@ -1263,7 +1264,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1277,7 +1278,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Trudging full image of the player.
 
@@ -1291,7 +1292,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1305,7 +1306,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Trudging face image of the player.
 
@@ -1319,7 +1320,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1335,19 +1336,19 @@ class SkinTypes:
                 
 
     class Cowering:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Cowering bust image of the player.
 
@@ -1361,7 +1362,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1375,7 +1376,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Cowering full image of the player.
 
@@ -1389,7 +1390,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1403,7 +1404,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Cowering face image of the player.
 
@@ -1417,7 +1418,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1433,19 +1434,19 @@ class SkinTypes:
                 
 
     class Pointing:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Pointing bust image of the player.
 
@@ -1459,7 +1460,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1473,7 +1474,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Pointing full image of the player.
 
@@ -1487,7 +1488,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1501,7 +1502,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Pointing face image of the player.
 
@@ -1515,7 +1516,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1531,19 +1532,19 @@ class SkinTypes:
                 
 
     class Lunging:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Lunging bust image of the player.
 
@@ -1557,7 +1558,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1571,7 +1572,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Lunging full image of the player.
 
@@ -1585,7 +1586,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1599,7 +1600,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Lunging face image of the player.
 
@@ -1613,7 +1614,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1629,19 +1630,19 @@ class SkinTypes:
                 
     
     class Dungeons:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Dungeons bust image of the player.
 
@@ -1655,7 +1656,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1669,7 +1670,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Dungeons full image of the player.
 
@@ -1683,7 +1684,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1697,7 +1698,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Dungeons face image of the player.
 
@@ -1711,7 +1712,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1727,19 +1728,19 @@ class SkinTypes:
         
     
     class Facepalm:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Facepalm bust image of the player.
 
@@ -1753,7 +1754,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1767,7 +1768,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Facepalm full image of the player.
 
@@ -1781,7 +1782,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1795,7 +1796,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Facepalm face image of the player.
 
@@ -1809,7 +1810,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1825,19 +1826,19 @@ class SkinTypes:
                 
 
     class Sleeping:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Sleeping bust image of the player.
 
@@ -1851,7 +1852,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1865,7 +1866,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Sleeping full image of the player.
 
@@ -1879,7 +1880,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1895,19 +1896,19 @@ class SkinTypes:
                 
 
     class Dead:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Dead bust image of the player.
 
@@ -1921,7 +1922,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1935,7 +1936,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Dead full image of the player.
 
@@ -1949,7 +1950,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1963,7 +1964,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Dead face image of the player.
 
@@ -1977,7 +1978,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -1993,19 +1994,19 @@ class SkinTypes:
                 
 
     class Archer:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Archer bust image of the player.
 
@@ -2019,7 +2020,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -2033,7 +2034,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Archer full image of the player.
 
@@ -2047,7 +2048,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -2061,7 +2062,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Archer face image of the player.
 
@@ -2075,7 +2076,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -2091,19 +2092,19 @@ class SkinTypes:
         
 
     class Kicking:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Kicking bust image of the player.
 
@@ -2117,7 +2118,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -2131,7 +2132,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Kicking full image of the player.
 
@@ -2145,7 +2146,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -2159,7 +2160,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Kicking face image of the player.
 
@@ -2173,7 +2174,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -2189,19 +2190,19 @@ class SkinTypes:
                 
 
     class Mojavatar:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Mojavatar bust image of the player.
 
@@ -2215,7 +2216,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -2229,7 +2230,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Mojavatar full image of the player.
 
@@ -2243,7 +2244,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -2259,19 +2260,19 @@ class SkinTypes:
                 
 
     class Reading:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Reading bust image of the player.
 
@@ -2285,7 +2286,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -2299,7 +2300,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Reading full image of the player.
 
@@ -2313,7 +2314,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -2327,7 +2328,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Reading face image of the player.
 
@@ -2341,7 +2342,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -2357,19 +2358,19 @@ class SkinTypes:
                 
 
     class Bitzel:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Bitzel bust image of the player.
 
@@ -2383,7 +2384,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -2397,7 +2398,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Bitzel full image of the player.
 
@@ -2411,7 +2412,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -2425,7 +2426,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Bitzel face image of the player.
 
@@ -2439,7 +2440,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -2455,19 +2456,19 @@ class SkinTypes:
                 
 
     class Pixel:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def bust(self) -> (imports.BytesIO | None):
+        async def bust(self) -> (packages.BytesIO | None):
             """
             Pixel bust image of the player.
 
@@ -2481,7 +2482,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -2495,7 +2496,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def full(self) -> (imports.BytesIO | None):
+        async def full(self) -> (packages.BytesIO | None):
             """
             Pixel full image of the player.
 
@@ -2509,7 +2510,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -2523,7 +2524,7 @@ class SkinTypes:
                 else:
                     return None
         
-        async def face(self) -> (imports.BytesIO | None):
+        async def face(self) -> (packages.BytesIO | None):
             """
             Pixel face image of the player.
 
@@ -2537,7 +2538,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -2553,19 +2554,19 @@ class SkinTypes:
                 
 
     class Skin:
-        def __init__(self, player: str, session: imports.aiohttp.ClientSession) -> None:
+        def __init__(self, player: str, session: packages.aiohttp.ClientSession) -> None:
             self.player: str = player
-            self.session: imports.aiohttp.ClientSession = session
+            self.session: packages.aiohttp.ClientSession = session
             self.Retry = 0
 
         async def __cracked__(self):
             self.Retry += 1
             if self.Retry >= 5:
                 self = None
-            self.player = imports.random.choice(default_skins)
+            self.player = packages.random.choice(default_skins)
             return self
 
-        async def default(self) -> (imports.BytesIO | None):
+        async def default(self) -> (packages.BytesIO | None):
             """
             Skin of the player.
 
@@ -2579,7 +2580,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()
@@ -2593,7 +2594,7 @@ class SkinTypes:
                 else:
                     return None
 
-        async def processed(self) -> (imports.BytesIO | None):
+        async def processed(self) -> (packages.BytesIO | None):
             """
             Processed image of the player.
 
@@ -2607,7 +2608,7 @@ class SkinTypes:
                 if response.status == 200:
                     try:
                         self.Retry = 0
-                        return imports.BytesIO(await response.read())
+                        return packages.BytesIO(await response.read())
                     
                     except Exception:
                         self = await self.__cracked__()

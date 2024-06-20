@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from CraftiGames.utils import imports, UnixTimestamp # type: ignore
+from CraftiGames.utils import packages, UnixTimestamp # type: ignore
 
 class Guild:
     """
@@ -135,7 +135,7 @@ class Guild:
         Returns:
         - UnixTimestamp (usable in discord timestamp) of guild's creation date-time.
         """
-        return int(imports.datetime.timestamp(imports.datetime.fromisoformat(self.raw.get('creationTime', 0))))
+        return int(packages.datetime.timestamp(packages.datetime.fromisoformat(self.raw.get('creationTime', 0))))
     
 
 class Clan:
@@ -257,4 +257,4 @@ class Clan:
         Returns:
         - UnixTimestamp (usable in discord timestamp) of Clan's creation date-time.
         """
-        return int(imports.datetime.timestamp(imports.datetime.fromisoformat(self.raw.get('creationTime', 0))))
+        return int(packages.datetime.timestamp(packages.datetime.fromisoformat(self.raw.get('creationTime', 0))))

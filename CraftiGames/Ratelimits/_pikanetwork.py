@@ -24,16 +24,12 @@ SOFTWARE.
 
 
 from CraftiGames._Logger import log  # type: ignore
-from CraftiGames.utils import imports  # type: ignore
-from CraftiGames.utils import (  # type: ignore
-    interval,
-    max_requests_per_interval as MAX_REQUESTS_PER_INTERVAL,
-    delay
-)
+from CraftiGames.utils import packages  # type: ignore
+from CraftiGames.utils import config # type: ignore
 
-RATE_LIMIT_INTERVAL = imports.timedelta(seconds=interval)
+delay = config.delay
 
-last_request_time = imports.time.time()
+last_request_time = packages.time.time()
 API_requests = 0
 
 async def avoid_rate_limits():
@@ -42,17 +38,17 @@ async def avoid_rate_limits():
     """
     global API_requests, last_request_time
 
-    current_time = imports.time.time()
+    current_time = packages.time.time()
     time_difference = current_time - last_request_time
 
-    if time_difference > RATE_LIMIT_INTERVAL.total_seconds():
+    if time_difference > packages.timedelta(seconds=config.interval).total_seconds():
         API_requests = 0
         last_request_time = current_time
 
     API_requests += 1
 
-    if API_requests > MAX_REQUESTS_PER_INTERVAL:
-        imports.asyncio.create_task(log('Max request per interval reached: Delayed for: ', delay, ' sec'))
-        await imports.asyncio.sleep(delay)
+    if API_requests > config.max_requests_per_interval:
+        packages.asyncio.create_task(log('Max request per interval reached: Delayed for: ', delay, ' sec'))
+        await packages.asyncio.sleep(delay)
         API_requests = 0
-        last_request_time = imports.time.time()
+        last_request_time = packages.time.time()

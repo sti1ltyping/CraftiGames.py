@@ -23,7 +23,7 @@ SOFTWARE.
 """
 
 
-from CraftiGames.utils import imports # type: ignore
+from CraftiGames.utils import packages # type: ignore
 
 
 class History:
@@ -86,15 +86,15 @@ class History:
     def all(
             self, 
             list_console: bool = True,
-            punishement_type: imports.Literal["all", "ban", "warn", "kick", "mute"] = "all"
+            punishement_type: packages.Literal["all", "ban", "warn", "kick", "mute"] = "all"
             ) -> dict:
 
-        soup = imports.BeautifulSoup(self.__html_parser__, 'html.parser')
+        soup = packages.BeautifulSoup(self.__html_parser__, 'html.parser')
         player = soup.title.string[:-28] if soup.title is not None else "Not found"
         punishments: dict = {}
         prow = []
         for row in soup.find_all(class_='row'):
-            row: imports.BeautifulSoup
+            row: packages.BeautifulSoup
 
             reason = row.find(class_='_reason').text.strip()
             date = row.find(class_='_date').text.strip()

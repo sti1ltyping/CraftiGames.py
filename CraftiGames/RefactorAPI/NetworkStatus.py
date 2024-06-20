@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from CraftiGames.utils import imports, UnixTimestamp #type: ignore
+from CraftiGames.utils import packages, UnixTimestamp #type: ignore
 
 class NetworkStatus:
     """
@@ -86,4 +86,4 @@ class NetworkStatus:
         Returns:
         - UnixTimestamp (usable in discord timestamp) of last updated.
         """
-        return int(imports.parser.isoparse(self.raw.get("updated_at")).timestamp())
+        return int(packages.parser.isoparse(self.raw.get("updated_at")).timestamp())

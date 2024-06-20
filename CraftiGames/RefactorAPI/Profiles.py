@@ -23,7 +23,7 @@ SOFTWARE.
 """
 
 from .Guilds import Guild, Clan
-from CraftiGames.utils import imports, UnixTimestamp # type: ignore
+from CraftiGames.utils import packages, UnixTimestamp # type: ignore
 from CraftiGames.Skins import SkinTypes # type: ignore
 
 class PikaProfile:
@@ -55,7 +55,7 @@ class PikaProfile:
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE."""
 
-    def __init__(self, data: dict, session: imports.aiohttp.ClientSession):
+    def __init__(self, data: dict, session: packages.aiohttp.ClientSession):
         self.raw: dict = data
         self.session = session
 
@@ -123,7 +123,7 @@ class PikaProfile:
         return float(self.raw.get("rank", {}).get("percentage", 0))
     
     @property
-    def highest_minigame_rank(self) -> imports.Literal[
+    def highest_minigame_rank(self) -> packages.Literal[
         "Developer", # 0
         "Admin",     # 1
         "Manager",   # 2
@@ -155,7 +155,7 @@ class PikaProfile:
             return 'Unranked'
     
     @property
-    def highest_practice_rank(self) -> imports.Literal[
+    def highest_practice_rank(self) -> packages.Literal[
         "Emerald", # 0
         "Diamond", # 1
         "Gold",    # 2
@@ -185,7 +185,7 @@ class PikaProfile:
         - UnixTimestamp (usable in discord timestamp) of player's last seen date-time.
         """
         last_seen_raw: int | None = self.raw.get("lastSeen", None)
-        return int(imports.time.time()) if last_seen_raw == -1 or last_seen_raw is None else int(str(last_seen_raw)[:-3]) # Staffs have -1
+        return int(packages.time.time()) if last_seen_raw == -1 or last_seen_raw is None else int(str(last_seen_raw)[:-3]) # Staffs have -1
     
     @property
     def last_seen_text(self) -> (str | None):
@@ -195,7 +195,7 @@ class PikaProfile:
         """
         try:
 
-            time_difference = imports.datetime.utcnow() - imports.datetime.utcfromtimestamp(self.last_seen)
+            time_difference = packages.datetime.utcnow() - packages.datetime.utcfromtimestamp(self.last_seen)
 
             if time_difference.days > 0:
                 return "1 day ago" if time_difference.days == 1 else f"{time_difference.days} days ago"
@@ -285,7 +285,7 @@ class JartexProfile:
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE."""
 
-    def __init__(self, data: dict, session: imports.aiohttp.ClientSession):
+    def __init__(self, data: dict, session: packages.aiohttp.ClientSession):
         self.raw: dict = data
         self.session = session
 
@@ -353,7 +353,7 @@ class JartexProfile:
         return float(self.raw.get("rank", {}).get("percentage", 0))
     
     @property
-    def rank(self) -> imports.Literal[
+    def rank(self) -> packages.Literal[
         "Owner",     # 0
         "Developer", # 1
         "Manager",   # 3
@@ -392,7 +392,7 @@ class JartexProfile:
         - UnixTimestamp (usable in discord timestamp) of player's last seen date-time.
         """
         last_seen_raw: int | None = self.raw.get("lastSeen", None)
-        return int(imports.time.time()) if last_seen_raw == -1 or last_seen_raw is None else int(str(last_seen_raw)[:-3]) # Staffs have -1
+        return int(packages.time.time()) if last_seen_raw == -1 or last_seen_raw is None else int(str(last_seen_raw)[:-3]) # Staffs have -1
     
     @property
     def last_seen_text(self) -> (str | None):
@@ -402,7 +402,7 @@ class JartexProfile:
         """
         try:
 
-            time_difference = imports.datetime.utcnow() - imports.datetime.utcfromtimestamp(self.last_seen)
+            time_difference = packages.datetime.utcnow() - packages.datetime.utcfromtimestamp(self.last_seen)
 
             if time_difference.days > 0:
                 return "1 day ago" if time_difference.days == 1 else f"{time_difference.days} days ago"

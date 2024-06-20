@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-class imports:
+class packages:
     import aiohttp
     import json
     import asyncio
@@ -43,7 +43,6 @@ class imports:
     import colorama
     from pathlib import Path
 
-settings_path = imports.Path('CraftiGames/settings.ini')
 
 class Weekly:
 
@@ -403,8 +402,8 @@ class aiohttpClientHeader:
 
 async def header() -> aiohttpClientHeader:
     headers = {
-        'User-Agent': imports.random.choice(aiohttpClientHeader.user_agents),
-        'Device-Id': imports.random.choice(aiohttpClientHeader.device_ids)
+        'User-Agent': packages.random.choice(aiohttpClientHeader.user_agents),
+        'Device-Id': packages.random.choice(aiohttpClientHeader.device_ids)
     }
     return headers
 
@@ -563,42 +562,31 @@ class Check:
             raise ValueError("Invalid stats, you can't use that in rankedpractice.")
         elif gamemode.lower() == 'unrankedpractice' and stats.lower() not in self.UnrankedPractice:
             raise ValueError("Invalid stats, you can't use that in unrankedpractice.")
-        
-
-_config = imports.configparser.ConfigParser()
-
-logging = False
-allowed_recursion = 30
-batch_size = 10
-default_skins = ["XSteve"]
-delay_after_exceeding_ratelimit = 1.5
-batch_delay = 1
-interval = 1
-max_requests_per_interval = 20
-delay = 1.5
-
-def SelfConfig():
-    global logging, allowed_recursion, batch_size, default_skins
-    global delay_after_exceeding_ratelimit, batch_delay, interval
-    global max_requests_per_interval, delay
-
-    _config.read(settings_path)
-
-    logging = _config.getboolean('DEFAULT', 'Logging', fallback=False)
-    allowed_recursion = _config.getint('DEFAULT', 'Allowed_Recursion', fallback=30)
-    batch_size = _config.getint('DEFAULT', 'Batch_size', fallback=10)
-    default_skins = _config.get('Skins', 'Default', fallback="XSteve").split(',')
-
-    delay_after_exceeding_ratelimit = _config.getfloat('Ratelimit', 'Delay_After_Exceeding_Ratelimit', fallback=1.5)
-    batch_delay = _config.getfloat('Ratelimit', 'Delay_Between_Batches', fallback=1)
-    interval = _config.getint('Ratelimit', 'Interval', fallback=1)
-    max_requests_per_interval = _config.getint('Ratelimit', 'Request_Per_Interval', fallback=20)
-    delay = _config.getfloat('Ratelimit', 'Delay', fallback=1.5)
-
-SelfConfig()
 
 
-def config(
+class Configuration:
+    def __init__(self, *, config_path='CraftiGames/settings.ini'):
+        self.config_path = packages.Path(config_path)
+        self._config = packages.configparser.ConfigParser()
+        self._load_config()
+
+    def _load_config(self):
+        """Load the configuration from the file."""
+        self._config.read(self.config_path)
+
+        self.logging = self._config.getboolean('DEFAULT', 'Logging', fallback=False)
+        self.allowed_recursion = self._config.getint('DEFAULT', 'Allowed_Recursion', fallback=30)
+        self.batch_size = self._config.getint('DEFAULT', 'Batch_size', fallback=10)
+        self.default_skins = self._config.get('Skins', 'Default', fallback="XSteve").split(',')
+
+        self.delay_after_exceeding_ratelimit = self._config.getfloat('Ratelimit', 'Delay_After_Exceeding_Ratelimit', fallback=1.5)
+        self.batch_delay = self._config.getfloat('Ratelimit', 'Delay_Between_Batches', fallback=1)
+        self.interval = self._config.getint('Ratelimit', 'Interval', fallback=1)
+        self.max_requests_per_interval = self._config.getint('Ratelimit', 'Request_Per_Interval', fallback=20)
+        self.delay = self._config.getfloat('Ratelimit', 'Delay', fallback=1.5)
+
+    def update(
+        self,
         *,
         Logging: bool = False,
         Allowed_Recursion: int = 30,
@@ -609,50 +597,50 @@ def config(
         Max_Requests_Per_Interval: int = 20,
         Delay: float = 1.5,
         Delay_After_Exceeding_Ratelimit: float = 1.5
-) -> None:
-    """
-    Caution
-    ~~~~
-    Using this function is not recommended.
+    ) -> None:
+        """
+        Caution
+        ~~~~
+        Using this function is not recommended.
 
-    _______________________________________________________________________________________________
+        _______________________________________________________________________________________________
 
-    This function can be used to configure `CraftiGames` settings. [Dynamically updates config]
+        This function can be used to configure `CraftiGames` settings. [Dynamically updates config]
 
-    NOTE:
-    - In case you want to undo your change use the following code:
+        NOTE:
+        - In case you want to undo your change use the following code:
 
-    ```
-    from CraftiGames import config
+        ```
+        from CraftiGames import config
 
-    config() # sets everything to default
-    ```
-    """
-    _config = imports.configparser.ConfigParser()
+        config.update() # sets everything to default
+        ```
+        """
+        _config = packages.configparser.ConfigParser()
 
-    _config['DEFAULT'] = {
-        'Logging': str(Logging),
-        'Allowed_Recursion': str(Allowed_Recursion),
-        'Batch_size': str(Batch_Size)
-    }
+        _config['DEFAULT'] = {
+            'Logging': str(Logging),
+            'Allowed_Recursion': str(Allowed_Recursion),
+            'Batch_size': str(Batch_Size)
+        }
 
-    _config['Skins'] = {
-        'Default': ', '.join(Default_Skins)
-    }
+        _config['Skins'] = {
+            'Default': ', '.join(Default_Skins)
+        }
 
-    _config['Ratelimit'] = {
-        'Delay_After_Exceeding_Ratelimit': str(Delay_After_Exceeding_Ratelimit),
-        'Delay_Between_Batches': str(Batch_Delay),
-        'Interval': str(Interval),
-        'Request_Per_Interval': str(Max_Requests_Per_Interval),
-        'Delay': str(Delay)
-    }
+        _config['Ratelimit'] = {
+            'Delay_After_Exceeding_Ratelimit': str(Delay_After_Exceeding_Ratelimit),
+            'Delay_Between_Batches': str(Batch_Delay),
+            'Interval': str(Interval),
+            'Request_Per_Interval': str(Max_Requests_Per_Interval),
+            'Delay': str(Delay)
+        }
 
-    settings_path.parent.mkdir(parents=True, exist_ok=True)
+        self.config_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(settings_path, 'w', encoding='utf-8') as file:
-        _config.write(file)
+        with open(self.config_path, 'w', encoding='utf-8') as file:
+            _config.write(file)
 
-    SelfConfig()
+        self._load_config()
 
-    return
+config = Configuration()

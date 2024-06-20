@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from CraftiGames.utils import imports, UnixTimestamp
+from CraftiGames.utils import packages, UnixTimestamp
 
 class player: ...
 class value: ...
@@ -187,7 +187,7 @@ class Recap:
         return self.raw.get("gameServerName", '')
     
     @property
-    def game_start(self) -> int:
+    def game_start(self) -> UnixTimestamp:
         """
         Returns:
         - Unix timestamp (usable in Discord timestamp) of game's starting date-time.
@@ -195,7 +195,7 @@ class Recap:
         iso_format = self.raw.get("gameStart", None)
         if iso_format:
             try:
-                dt = imports.datetime.fromisoformat(iso_format.replace("Z", "+00:00"))
+                dt = packages.datetime.fromisoformat(iso_format.replace("Z", "+00:00"))
                 return int(dt.timestamp())
             except ValueError as e:
                 return 0
