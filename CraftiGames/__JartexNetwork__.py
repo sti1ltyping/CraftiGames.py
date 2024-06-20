@@ -79,7 +79,7 @@ from typing import (
 )
 
 
-allowed_recursion = config
+allowed_recursion = config.allowed_recursion
 batch_size = config.batch_size
 batch_delay = config.batch_delay
 delay_after_exceeding_ratelimit = config.delay_after_exceeding_ratelimit

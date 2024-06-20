@@ -31,7 +31,7 @@ __title__ = 'CraftGames'
 __author__ = 'sti1ltyping'
 __license__ = 'MIT'
 __copyright__ = 'Copyright (c) 2024 sti1ltyping'
-__version__ = '1.1.1'
+__version__ = '1.2.1'
 
 from typing import NamedTuple, Literal
 
@@ -65,7 +65,7 @@ version_info: VersionInfo = VersionInfo(
     major=0,
     minor=0,
     micro=3,
-    release="beta",
+    release="candidate",
     serial=0
 )
 
