@@ -185,7 +185,7 @@ class Pikanetwork:
         ~~~~~~
 
         ~~~
-        from PikaPY import Pikanetwork, PikaAnnotations
+        from CraftiGames import Pikanetwork, PikaAnnotations
         import asyncio
 
 
@@ -286,7 +286,7 @@ class Pikanetwork:
         ~~~~~~
 
         ~~~
-        from PikaPY import Pikanetwork, PikaAnnotations
+        from CraftiGames import Pikanetwork, PikaAnnotations
         import asyncio
 
 
@@ -383,7 +383,7 @@ class Pikanetwork:
         ~~~~~~
 
         ~~~
-        from PikaPY import Pikanetwork, PikaAnnotations
+        from CraftiGames import Pikanetwork, PikaAnnotations
         import asyncio
 
 
@@ -592,7 +592,7 @@ class Pikanetwork:
         ~~~~~~
 
         ~~~
-        from PikaPY import Pikanetwork
+        from CraftiGames import Pikanetwork
         import asyncio
 
         async def Example(player: str):
@@ -655,7 +655,7 @@ class Pikanetwork:
         ~~~~~~
 
         ~~~
-        from PikaPY import Pikanetwork, PikaAnnotations
+        from CraftiGames import Pikanetwork, PikaAnnotations
         import asyncio
 
 
@@ -723,7 +723,7 @@ class Pikanetwork:
         ~~~~~~
 
         ~~~
-        from PikaPY import Pikanetwork, PikaAnnotations
+        from CraftiGames import Pikanetwork, PikaAnnotations
         import asyncio
 
 
@@ -785,7 +785,7 @@ class Pikanetwork:
         ~~~~~~
 
         ~~~
-        from PikaPY import Pikanetwork, PikaAnnotations
+        from CraftiGames import Pikanetwork, PikaAnnotations
         import asyncio
 
 
@@ -847,7 +847,7 @@ class Pikanetwork:
         ~~~~~~
 
         ~~~
-        from PikaPY import Pikanetwork, PikaAnnotations
+        from CraftiGames import Pikanetwork, PikaAnnotations
         import asyncio
 
 

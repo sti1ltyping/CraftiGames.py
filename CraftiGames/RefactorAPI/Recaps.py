@@ -23,9 +23,26 @@ SOFTWARE.
 """
 
 from CraftiGames.utils import packages, UnixTimestamp
+from dataclasses import dataclass
 
 class player: ...
 class value: ...
+
+@dataclass
+class stats:
+    username: str
+    Blocks_placed: int
+    Resources_collected: int
+    Blocks_moved: int
+    Items_bought: int
+    Deaths: int
+    Final_kills: int
+    Kills: int
+    Beds_destroyed: int
+    Assists: int
+    Blocks_mined: int
+    time_of_death: str
+
 
 class TopPlayers:
     """
@@ -640,3 +657,30 @@ class Recap:
         ```
         """
         return self.top_players.leaderboard["beds_destroyed"]
+    
+    @property
+    def player_stats(self):
+        """
+        Return
+         - List of stats of players. (dataclass)
+        """
+        users: list[dict] = self.raw.get("users", [])
+        _player_stats: list[stats] = []
+        for _ in users:
+            _stats: dict = _.get("stats", {})
+            _player_stats.append(stats(
+                username = _.get("username", None),
+                Blocks_placed = int(_stats.get("Blocks placed", 0)),
+                Resources_collected = int(_stats.get("Resources collected", 0)),
+                Blocks_moved = int(_stats.get("Blocks moved", 0)),
+                Items_bought = int(_stats.get("Items bought", 0)),
+                Deaths = int(_stats.get("Deaths", 0)),
+                Final_kills = int(_stats.get("Final kills", 0)),
+                Kills = int(_stats.get("Kills", 0)),
+                Beds_destroyed = int(_stats.get("Beds destroyed", 0)),
+                Assists = int(_stats.get("Assists", 0)),
+                Blocks_mined = int(_stats.get("Blocks mined", 0)),
+                time_of_death = _stats.get("Time of death", None)
+            )
+        )
+        return _player_stats

@@ -25,7 +25,7 @@ Credits
 Installing
 ----------
 ```
-    pip install CraftiGames
+pip install CraftiGames.py
 ```
 
 
