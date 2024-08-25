@@ -22,5 +22,5 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import CraftiGames.Ratelimits._pikanetwork as pikanetwork
-import CraftiGames.Ratelimits._jartexnetwork as jartexnetwork
+import CraftiGames.Ratelimits.PikaNetworkRateLimitHandler as PikaNetworkRateLimitHandler
+import CraftiGames.Ratelimits.JartexNetworkRateLimitHandler as JartexNetworkRateLimitHandler

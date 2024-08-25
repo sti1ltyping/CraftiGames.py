@@ -226,36 +226,27 @@ async def main():
     # Sending API requests with an asynchronous environment
     async with Pikanetwork() as api:
 
-        _profiles = await api.MultiProfile(api, players)
-        _stats = await api.MultiStats(api, players, "bedwars", "total", "all_modes")
-        _guilds = await api.MultiGuilds(api, guilds)
+        profiles = await api.MultiProfile(players)
+        stats = await api.MultiStats(players, "bedwars", "total", "all_modes")
+        guilds = await api.MultiGuilds(guilds)
     
     
-    # Multi-Processing always returns response in the form of ("object's name", 'API Response')
-    for player, profile in _profiles:
+    for player, profile in profiles:
         
-        player: str
-        profile: PikaAnnotations.Profile
 
         if profile is None:
             print(f'Couldn\'t find any player named {player}!')
 
         print(player, profile.level)
 
-    for player, stats in _stats:
-        
-        player: str
-        stats: PikaAnnotations.Stats
+    for player, stats in stats:
 
         if profile is None:
             print(f'Couldn\'t find any player named {player}!')
 
         print(player, stats.wins)
 
-    for name, guild in _guilds:
-        
-        name: str
-        guild: PikaAnnotations.Guild
+    for name, guild in guilds:
 
         if profile is None:
             print(f'Couldn\'t find any guild named {name}!')
@@ -296,7 +287,10 @@ config.update(
 ```python
 from CraftiGames import config
 
-config.update() # reset config to default settings
+# Reset config to default settings
+config.reset()
+# OR
+config.update()
 ```
 
 

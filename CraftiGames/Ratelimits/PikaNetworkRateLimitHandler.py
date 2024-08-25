@@ -25,9 +25,6 @@ SOFTWARE.
 
 from CraftiGames._Logger import log  # type: ignore
 from CraftiGames.utils import packages  # type: ignore
-from CraftiGames.utils import config # type: ignore
-
-delay = config.delay
 
 last_request_time = packages.time.time()
 API_requests = 0
@@ -36,6 +33,11 @@ async def avoid_rate_limits():
     """
     Handles rate limits for `PikaNetwork`'s API.
     """
+
+    from CraftiGames.utils import config # type: ignore
+
+    delay = config.delay
+
     global API_requests, last_request_time
 
     current_time = packages.time.time()

@@ -9,7 +9,7 @@ with open('README.md') as README_file:
 
 setup(
     name='CraftiGames.py',
-    version='1.2.3',
+    version='2.1.1',
     author='sti1ltyping',
     author_email='sti1ltyping.chillax@gmail.com',
     url='https://github.com/sti1ltyping/CraftiGames.py',

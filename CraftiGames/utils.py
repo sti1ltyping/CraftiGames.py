@@ -36,7 +36,7 @@ class packages:
     import traceback
     import random
     from typing import (
-        Literal, Union
+        Literal, Union, List, AnyStr
     )
     from dateutil import parser
     import configparser
@@ -45,104 +45,76 @@ class packages:
 
 
 class Weekly:
-
     """Represents weekly interval."""
-    def __str__(self):
-        return "weekly"
+    def __str__(self) -> packages.Literal["weekly"]: return "weekly"
     
 class Monthly:
-
     """Represents monthly interval."""
-    def __str__(self):
-        return "monthly"
+    def __str__(self) -> packages.Literal["monthly"]: return "monthly"
     
 class Yearly:
-    
     """Represents yearly interval."""
-    def __str__(self):
-        return "yearly"
+    def __str__(self) -> packages.Literal["yearly"]: return "yearly"
     
 class Total:
-
     """Represents all times."""
-    def __str__(self):
-        return "total"
+    def __str__(self) -> packages.Literal["total"]: return "total"
 
 class All_Modes:
-
     """Represents all_modes."""
-    def __str__(self):
-        return "all_modes"
+    def __str__(self) -> packages.Literal["all_modes"]: return "all_modes"
     
 class Solo:
-
     """Represents solo gamemode."""
-    def __str__(self):
-        return "solo"
+    def __str__(self) -> packages.Literal["solo"]: return "solo"
     
 class Doubles:
-
     """Represents doubles mode."""
-    def __str__(self):
-        return "doubles"
+    def __str__(self) -> packages.Literal["doubles"]: return "doubles"
     
 class Triples:
-
     """Represents triples mode."""
-    def __str__(self):
-        return "triples"
+    def __str__(self) -> packages.Literal["triples"]: return "triples"
     
 class Quadriples:
-
     """Represents quadriples modes."""
-    def __str__(self):
-        return "quad"
+    def __str__(self) -> packages.Literal["quad"]: return "quad"
 
 class Gamemodes:
 
     """List of available gamemodes"""
     
     @property
-    def bedwars():
-        return "bedwars"
+    def bedwars() -> packages.Literal['bedwars']: return "bedwars"
     
     @property
-    def skywars():
-        return "skywars"
+    def skywars() -> packages.Literal['skywars']: return "skywars"
     
     @property
-    def unrankedpractice():
-        return "unrankedpractice"
+    def unrankedpractice() -> packages.Literal['unrankedpractice']: return "unrankedpractice"
     
     @property
-    def rankedpractice():
-        return "rankedpractice"
+    def rankedpractice() -> packages.Literal['rankedpractice']: return "rankedpractice"
     
-    def all() -> list:
-        return ['bedwars', 'skywars', 'unrankedpractice', 'rankedpractice']
+    def all() -> packages.List[str]: return ['bedwars', 'skywars', 'unrankedpractice', 'rankedpractice']
     
 class Intervals:
 
     """List of available intervals"""
     
     @property
-    def weekly():
-        return "weekly"
+    def weekly() -> packages.Literal["weekly"]: return "weekly"
+
+    @property
+    def monthly() -> packages.Literal["monthly"]: return "monthly"
+
+    @property
+    def yearly() -> packages.Literal["yearly"]: return "yearly"
     
     @property
-    def monthly():
-        return "monthly"
+    def total() -> packages.Literal["total"]: return "total"
     
-    @property
-    def yearly():
-        return "yearly"
-    
-    @property
-    def total():
-        return "total"
-    
-    def all() -> list:
-        return ['weekly', 'monthly', 'yearly', 'total']
+    def all() -> packages.List[str]: return ['weekly', 'monthly', 'yearly', 'total']
 
 class Modes:
 
@@ -174,19 +146,24 @@ class Modes:
 
 class APIResponseError(Exception):
     """Raise error on API's host side issue."""
-    def __init__(self, message="API is not responding to the requests."):
-        self.message = message
+    def __init__(self, status_code: int, message="Error!"):
+        self.message = f"{status_code}: " + message
         super().__init__(self.message)
 
 class APIBlockedException(Exception):
     """Exception raised when the API requests are blocked."""
-    def __init__(self, message="API requests are being blocked."):
+    def __init__(self, message="403: API requests are being blocked."):
         self.message = message
         super().__init__(self.message)
     
 class Do_Not_Touch: ...
 
 class UnixTimestamp: ...
+
+class Missing:
+
+    def __str__(self) -> str:
+        return  'Missing Arguments!'
 
 class aiohttpClientHeader:
     user_agents = [
@@ -529,7 +506,7 @@ class Check:
             raise ValueError('Invalid mode has been passed!')
         
         if gamemode.lower() == 'skywars' and mode.lower() not in self.valid_modes_in_skywars:
-            raise ValueError("Invalid mode, can\'t use that in skywars. Can only use solo or doubles.")
+            raise ValueError("Invalid mode, can't use that in skywars. Can only use solo or doubles.")
         elif gamemode.lower() in ['rankedpractice', 'unrankedpractice'] and mode.lower() not in self.valid_modes_in_practice:
             raise ValueError("Invalid mode, can't use that in practice. Can only use all_modes.")
         
@@ -610,11 +587,10 @@ class Configuration:
         NOTE:
         - In case you want to undo your change use the following code:
 
-        ```
-        from CraftiGames import config
+        `from CraftiGames import config`
 
-        config.update() # sets everything to default
-        ```
+        `config.reset() # or config.update() # sets everything to default`
+        
         """
         _config = packages.configparser.ConfigParser()
 
@@ -642,5 +618,9 @@ class Configuration:
             _config.write(file)
 
         self._load_config()
+
+    def reset(self):
+        """Reset configuration to default!"""
+        self.update()
 
 config = Configuration()

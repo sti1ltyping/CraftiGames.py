@@ -57,7 +57,7 @@ from .Games.Skywars import Skywars
 from .Punishments import History
 
 from .Ratelimits import (
-    _jartexnetwork as jr_
+    JartexNetworkRateLimitHandler as jr_
 )
 
 from .ResponseError import faulty
