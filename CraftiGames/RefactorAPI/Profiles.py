@@ -24,7 +24,7 @@ SOFTWARE.
 
 from .Guilds import Guild, Clan
 from CraftiGames.utils import packages, UnixTimestamp # type: ignore
-from CraftiGames.Skins import SkinTypes # type: ignore
+from CraftiGames.Skins import * # type: ignore
 
 class PikaProfile:
     """
@@ -57,11 +57,19 @@ class PikaProfile:
 
     def __init__(self, data: dict, session: packages.aiohttp.ClientSession):
         self.raw: dict = data
-        self.session = session
+        self.skin = self._skin(self.username, session) 
+    
+    class _skin:
+        def __init__(self, username: str, session: packages.aiohttp.ClientSession):
+            self.username = username
+            self._session = session
+        @property
+        def starlight(self) -> Starlight:
+            return Starlight(self.username, self._session)
+        @property
+        def surgeplay(self) -> Surgeplay:
+            return Surgeplay(self.username, self._session)
 
-    @property
-    def skin(self) -> SkinTypes:
-        return SkinTypes(self.username, self.session)
     
     @property
     def discord_verified(self) -> bool:
@@ -112,7 +120,11 @@ class PikaProfile:
         Returns:
         - Level of the player.
         """
-        return int(self.raw.get("rank", {}).get("level", 0))
+        try: # Bug fix
+            lvl = int(self.raw.get("rank", {}).get("level", 0))
+        except AttributeError:
+            lvl = 0
+        return lvl
     
     @property
     def level_percentage(self) -> float:
@@ -287,11 +299,18 @@ class JartexProfile:
 
     def __init__(self, data: dict, session: packages.aiohttp.ClientSession):
         self.raw: dict = data
-        self.session = session
-
-    @property
-    def skin(self) -> SkinTypes:
-        return SkinTypes(self.username, self.session)
+        self.skin = self._skin(self.username, session) 
+    
+    class _skin:
+        def __init__(self, username: str, session: packages.aiohttp.ClientSession):
+            self.username = username
+            self._session = session
+        @property
+        def starlight(self) -> Starlight:
+            return Starlight(self.username, self._session)
+        @property
+        def surgeplay(self) -> Surgeplay:
+            return Surgeplay(self.username, self._session)
     
     @property
     def discord_verified(self) -> bool:
@@ -342,7 +361,11 @@ class JartexProfile:
         Returns:
         - Level of the player.
         """
-        return int(self.raw.get("rank", {}).get("level", 0))
+        try: # Bug fix
+            lvl = int(self.raw.get("rank", {}).get("level", 0))
+        except AttributeError:
+            lvl = 0
+        return lvl
     
     @property
     def level_percentage(self) -> float:
@@ -402,7 +425,7 @@ class JartexProfile:
         """
         try:
 
-            time_difference = packages.datetime.utcnow() - packages.datetime.utcfromtimestamp(self.last_seen)
+            time_difference = packages.datetime.now(packages.timezone.utc) - packages.datetime.fromtimestamp(self.last_seen)
 
             if time_difference.days > 0:
                 return "1 day ago" if time_difference.days == 1 else f"{time_difference.days} days ago"

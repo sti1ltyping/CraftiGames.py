@@ -35,12 +35,12 @@ __version__ = '1.2.2'
 
 from typing import NamedTuple, Literal
 
-from .__PikaNetwork__ import (
+from .PikanetworkWrapper import (
     Pikanetwork,
     PikaAnnotations,
 )
 
-from .__JartexNetwork__ import (
+from .JartexnetworkWrapper import (
     Jartexnetwork,
     JartexAnnotations
 )

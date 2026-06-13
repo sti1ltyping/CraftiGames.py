@@ -71,11 +71,10 @@ from .utils import Check
 from .utils import (
     APIBlockedException,
     APIResponseError,
-    Do_Not_Touch
 )
 
 from typing import (
-    Union, Literal, List, Tuple
+    Union, Literal, List, Tuple, Optional
 )
 
 
@@ -93,14 +92,14 @@ class JartexAnnotations:
 
     - Represents `TypeAnnotation` for JartexNetwork's API wrapper.
     """
-    Stats = Union[Bedwars, Skywars]
-    Profile = JartexProfile
-    Clan  = Clan
-    Punishments = History
-    Status = NetworkStatus
-    Recap = Recap
-    Jartexnetwork: 'Jartexnetwork' = None, ...
-    JartexAnnotations: 'JartexAnnotations' = None, ...
+    type Stats                             =         Union[Bedwars, Skywars]
+    type Profile                           =         JartexProfile
+    type Clan                              =         Clan
+    type Punishments                       =         History
+    type Status                            =         NetworkStatus
+    type Recap                             =         Recap
+    Jartexnetwork:     'Jartexnetwork'     =         None
+    JartexAnnotations: 'JartexAnnotations' =         None
 
 
 class Jartexnetwork:
@@ -134,12 +133,50 @@ class Jartexnetwork:
     SOFTWARE.
     """
 
-    def __init__(self) -> None:
-        self.session = None
+    def __init__(self, *, session: packages.aiohttp.ClientSession = ..., proxies: Optional[List[str]] = None) -> None:
+        self.session = session
+        self.proxies = proxies if proxies else []
+        self.current_proxy_index = 0
         self.cache = {...}
 
+    def _get_next_proxy(self) -> Optional[str]:
+        """Get the next working proxy from the list."""
+        if not self.proxies:
+            return None
+        
+        if self.current_proxy_index >= len(self.proxies):
+            self.current_proxy_index = 0
+
+        proxy = self.proxies[self.current_proxy_index]
+        self.current_proxy_index = (self.current_proxy_index + 1) % len(self.proxies)
+        return proxy
+    
+    async def _mark_proxy_banned(self, proxy: str) -> None:
+        """Remove a banned proxy from the list and log if logging is enabled."""
+        if proxy in self.proxies:
+            self.proxies.remove(proxy)
+            await packages.asyncio.create_task(log(f'Proxy banned and removed from list: {proxy}'))
+            if self.proxies:
+                self.current_proxy_index = self.current_proxy_index % len(self.proxies)
+            else:
+                self.current_proxy_index = 0
+    
+    def _get_optimal_batch_params(self) -> tuple[int, float]:
+        """Calculate optimal batch size and delay based on proxy count.
+        
+        Returns:
+            tuple: (batch_size, batch_delay)
+        """
+        if not self.proxies:
+            return batch_size, batch_delay
+        num_proxies = len(self.proxies)
+        optimal_batch_size = batch_size * num_proxies
+        optimal_delay = batch_delay / (num_proxies * 0.5) if num_proxies > 0 else batch_delay
+        return optimal_batch_size, optimal_delay
+
     async def __aenter__(self):
-        self.session = packages.aiohttp.ClientSession(headers = await header())
+        if self.session == Ellipsis:
+            self.session = packages.aiohttp.ClientSession(headers=header())
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
@@ -155,21 +192,20 @@ class Jartexnetwork:
 
         - Represents `TypeAnnotation` for JartexNetwork's API wrapper.
         """
-        Stats = Union[Bedwars, Skywars]
-        Profile = JartexProfile
-        Clan  = Clan
-        Punishments = History
-        Status = NetworkStatus
-        Recap = Recap
-        Jartexnetwork: 'Jartexnetwork' = None, ...
-        JartexAnnotations: 'JartexAnnotations' = None, ...
+        type Stats                             =         Union[Bedwars, Skywars]
+        type Profile                           =         JartexProfile
+        type Clan                              =         Clan
+        type Punishments                       =         History
+        type Status                            =         NetworkStatus
+        type Recap                             =         Recap
+        Jartexnetwork:     'Jartexnetwork'     =         None
+        JartexAnnotations: 'JartexAnnotations' =         None
 
 
     async def Profile(
             self,
             player: str,
-            *,
-            Recursion: 'Do_Not_Touch' = 0
+            **kwargs
             ) -> Union[JartexProfile, None]:
         """
         Profile API
@@ -230,29 +266,42 @@ class Jartexnetwork:
 
         asyncio.run(example())
         """
-        await jr_.avoid_rate_limits()
-        async with self.session.get(f'https://stats.jartexnetwork.com/api/profile/{player}') as resp:
-
-            status = resp.status
-
-            if status == 200:
-                return JartexProfile(await resp.json(), session=self.session)
-
-            elif status == 429 and Recursion <= allowed_recursion:
-                Recursion += 1
-                packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
-                await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
-                return await self.Profile(player)
-
-            elif status == 400 or status == 204 or status == 404:
-                packages.asyncio.create_task(log(player, ' not found!'))
-                return None
-            
-            elif status == 403:
-                raise APIBlockedException()
-            
-            else:
-                raise APIResponseError()
+        ProxyAttempts = 0
+        use_proxy = kwargs.get('use_proxy', True)
+        proxy_count = len(self.proxies) if use_proxy else 0
+        await jr_.avoid_rate_limits(proxy_count)
+        proxy = self._get_next_proxy() if use_proxy else None
+        try:
+            async with self.session.get(f'https://stats.jartexnetwork.com/api/profile/{player}', proxy=proxy) as resp:
+                status = resp.status
+                if status == 200:
+                    return JartexProfile(await resp.json(), session=self.session)
+                elif status == 429 and Recursion <= allowed_recursion:
+                    Recursion += 1
+                    packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                    await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
+                    return await self.Profile(player)
+                elif status == 400 or status == 204 or status == 404:
+                    packages.asyncio.create_task(log(player, ' not found!'))
+                    return None
+                elif status == 403:
+                    if proxy:
+                        await self._mark_proxy_banned(proxy)
+                        ProxyAttempts += 1
+                        if self.proxies and ProxyAttempts < len(self.proxies) + 1:
+                            packages.asyncio.create_task(log(f'Proxy blocked, cycling to next proxy (attempt {ProxyAttempts})'))
+                            return await self.Profile(player)
+                    raise APIBlockedException()
+                else:
+                    raise APIResponseError()
+        except (packages.aiohttp.ClientError, packages.asyncio.TimeoutError) as e:
+            if proxy:
+                await self._mark_proxy_banned(proxy)
+                ProxyAttempts += 1
+                if self.proxies and ProxyAttempts < len(self.proxies) + 1:
+                    packages.asyncio.create_task(log(f'Connection error with proxy, cycling to next (attempt {ProxyAttempts}): {str(e)[:80]}'))
+                    return await self.Profile(player)
+            raise APIBlockedException(f'All proxies failed: {str(e)}')
    
 
     async def Stats(
@@ -261,8 +310,7 @@ class Jartexnetwork:
             gamemode: Literal["bedwars", "skywars"],
             interval: Literal["weekly", "monthly", "yearly", "total"],
             mode: Literal["all_modes", "solo", "doubles", "triples", "quad"],
-            *,
-            Recursion: 'Do_Not_Touch' = 0
+            **kwargs
             ) -> Union[Bedwars, Skywars, None]:
         """
         Stats API
@@ -313,58 +361,68 @@ class Jartexnetwork:
 
         asyncio.run(example())
         """
+        ProxyAttempts = 0
         if Recursion <= 0:
             player, gamemode, interval, mode = str(player), gamemode.lower(), interval.lower(), mode.upper()
             Check().__stats_input__(gamemode, interval, mode)
-
-        await jr_.avoid_rate_limits()
-        async with self.session.get(f'https://stats.jartexnetwork.com/api/profile/{player}/leaderboard?type={gamemode}&interval={interval}&mode={mode}') as resp:
-
-            status = resp.status
-
-            if status == 200:
-                data: dict = await resp.json()
-
-                if await faulty(data) and Recursion <= allowed_recursion:
+        use_proxy = kwargs.get('use_proxy', True)
+        proxy_count = len(self.proxies) if use_proxy else 0
+        await jr_.avoid_rate_limits(proxy_count)
+        proxy = self._get_next_proxy() if use_proxy else None
+        try:
+            async with self.session.get(f'https://stats.jartexnetwork.com/api/profile/{player}/leaderboard?type={gamemode}&interval={interval}&mode={mode}', proxy=proxy) as resp:
+                status = resp.status
+                if status == 200:
+                    data: dict = await resp.json()
+                    if await faulty(data) and Recursion <= allowed_recursion:
+                        Recursion += 1
+                        packages.asyncio.create_task(log('Faulty Stats detected: ', Recursion, 'X'))
+                        return await self.Stats(player, gamemode, interval, mode, Recursion=Recursion)
+                    return {
+                        'bedwars': Bedwars,
+                        'skywars': Skywars
+                    }.get(gamemode, lambda x: None)(data)
+                elif status == 429 and Recursion <= allowed_recursion:
                     Recursion += 1
-                    packages.asyncio.create_task(log('Faulty Stats detected: ', Recursion, 'X'))
+                    packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                    await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
                     return await self.Stats(player, gamemode, interval, mode, Recursion=Recursion)
-
-                return {
-                    'bedwars': Bedwars,
-                    'skywars': Skywars
-                }.get(
-                    gamemode,
-                    lambda x: None
-                )(data)
-
-
-            elif status == 429 and Recursion <= allowed_recursion:
-                Recursion += 1
-                packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
-                await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
-                return await self.Stats(player, gamemode, interval, mode, Recursion=Recursion)
-            
-            elif status == 204:
-                packages.asyncio.create_task(log(player, ' is hidden from the API!'))
-                return None
-            
-            elif status == 400 or status == 404:
-                packages.asyncio.create_task(log(player, ' not found!'))
-                return None
-            
-            elif status == 403:
-                raise APIBlockedException()
-            
-            else:
-                raise APIResponseError()
+                elif status == 204:
+                    packages.asyncio.create_task(log(player, ' is hidden from the API!'))
+                    return None
+                elif status == 400 or status == 404:
+                    packages.asyncio.create_task(log(player, ' not found!'))
+                    return None
+                elif status == 403:
+                    if proxy:
+                        await self._mark_proxy_banned(proxy)
+                        ProxyAttempts += 1
+                        if self.proxies and ProxyAttempts < len(self.proxies) + 1:
+                            packages.asyncio.create_task(log(f'Proxy blocked, cycling to next proxy (attempt {ProxyAttempts})'))
+                            return await self.Stats(player, gamemode, interval, mode, Recursion=Recursion)
+                        if use_proxy:
+                            packages.asyncio.create_task(log('All proxies blocked, falling back to no proxy'))
+                            return await self.Stats(player, gamemode, interval, mode, use_proxy=False)
+                    raise APIBlockedException()
+                else:
+                    raise APIResponseError()
+        except (packages.aiohttp.ClientError, packages.asyncio.TimeoutError) as e:
+            if proxy:
+                await self._mark_proxy_banned(proxy)
+                ProxyAttempts += 1
+                if self.proxies and ProxyAttempts < len(self.proxies) + 1:
+                    packages.asyncio.create_task(log(f'Connection error with proxy, cycling to next (attempt {ProxyAttempts}): {str(e)[:80]}'))
+                    return await self.Stats(player, gamemode, interval, mode, Recursion=Recursion)
+            if use_proxy and proxy:
+                packages.asyncio.create_task(log(f'All proxies failed, falling back to no proxy: {str(e)[:80]}'))
+                return await self.Stats(player, gamemode, interval, mode, use_proxy=False)
+            raise APIBlockedException(f'All proxies failed: {str(e)}')
 
 
     async def Clan(
             self,
             clan: str,
-            *,
-            Recursion: 'Do_Not_Touch' = 0
+            **kwargs
             ) -> Union[Clan, None]:
         """
         Clan API
@@ -410,29 +468,42 @@ class Jartexnetwork:
 
         asyncio.run(example())
         """
-        await jr_.avoid_rate_limits()
-        async with self.session.get(f'https://stats.jartexnetwork.com/api/clans/{clan}') as resp:
-
-            status = resp.status
-
-            if status == 200:
-                return Clan(await resp.json())
-            
-            elif status == 429 and Recursion <= allowed_recursion:
-                Recursion += 1
-                packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
-                await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
-                return await self.Clan(clan)
-            
-            elif status == 400 or status == 204 or status == 404:
-                packages.asyncio.create_task(log(clan, ' not found!'))
-                return None
-            
-            elif status == 403:
-                raise APIBlockedException()
-            
-            else:
-                raise APIResponseError()
+        ProxyAttempts = 0
+        use_proxy = kwargs.get('use_proxy', True)
+        proxy_count = len(self.proxies) if use_proxy else 0
+        await jr_.avoid_rate_limits(proxy_count)
+        proxy = self._get_next_proxy() if use_proxy else None
+        try:
+            async with self.session.get(f'https://stats.jartexnetwork.com/api/clans/{clan}', proxy=proxy) as resp:
+                status = resp.status
+                if status == 200:
+                    return Clan(await resp.json())
+                elif status == 429 and Recursion <= allowed_recursion:
+                    Recursion += 1
+                    packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                    await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
+                    return await self.Clan(clan)
+                elif status == 400 or status == 204 or status == 404:
+                    packages.asyncio.create_task(log(clan, ' not found!'))
+                    return None
+                elif status == 403:
+                    if proxy:
+                        await self._mark_proxy_banned(proxy)
+                        ProxyAttempts += 1
+                        if self.proxies and ProxyAttempts < len(self.proxies) + 1:
+                            packages.asyncio.create_task(log(f'Proxy blocked, cycling to next proxy (attempt {ProxyAttempts})'))
+                            return await self.Clan(clan)
+                    raise APIBlockedException()
+                else:
+                    raise APIResponseError()
+        except (packages.aiohttp.ClientError, packages.asyncio.TimeoutError) as e:
+            if proxy:
+                await self._mark_proxy_banned(proxy)
+                ProxyAttempts += 1
+                if self.proxies and ProxyAttempts < len(self.proxies) + 1:
+                    packages.asyncio.create_task(log(f'Connection error with proxy, cycling to next (attempt {ProxyAttempts}): {str(e)[:80]}'))
+                    return await self.Clan(clan)
+            raise APIBlockedException(f'All proxies failed: {str(e)}')
 
 
     async def __leaderboard__helper__(
@@ -443,32 +514,50 @@ class Jartexnetwork:
             mode,
             offset: int,
             limit: int,
-            *,
-            Recursion: 'Do_Not_Touch' = 0
+            **kwargs
         ) -> Union[dict, None]:
-
-        await jr_.avoid_rate_limits()
-        async with self.session.get(f'https://stats.jartexnetwork.com/api/leaderboards?type={gamemode}&stat={stats}&interval={interval}&mode={mode}&offset={offset}&limit={limit}') as resp:
-            
-            status = resp.status
-
-            if status == 200:
-                return await resp.json()
-            
-            elif status == 429 and Recursion <= allowed_recursion:
-                Recursion += 1
-                packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
-                await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
-                return await self.__leaderboard__helper__(gamemode, stats, interval, mode, offset, limit, Recursion=Recursion)
-            
-            elif status == 400 or status == 204 or status == 404:
-                return None
-            
-            elif status == 403:
-                raise APIBlockedException()
-            
-            else:
-                raise APIResponseError()
+        use_proxy = kwargs.get('use_proxy', True)
+        proxy_count = len(self.proxies) if use_proxy else 0
+        await jr_.avoid_rate_limits(proxy_count)
+        proxy = self._get_next_proxy() if use_proxy else None
+        try:
+            async with self.session.get(f'https://stats.jartexnetwork.com/api/leaderboards?type={gamemode}&stat={stats}&interval={interval}&mode={mode}&offset={offset}&limit={limit}', proxy=proxy) as resp:
+                status = resp.status
+                if status == 200:
+                    return await resp.json()
+                elif status == 429 and Recursion <= allowed_recursion:
+                    Recursion += 1
+                    packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                    await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
+                    return await self.__leaderboard__helper__(gamemode, stats, interval, mode, offset, limit, Recursion=Recursion)
+                elif status == 400 or status == 204 or status == 404:
+                    return None
+                elif status == 403:
+                    ProxyAttempts = 0
+                    if proxy:
+                        await self._mark_proxy_banned(proxy)
+                        ProxyAttempts += 1
+                        if self.proxies and ProxyAttempts < len(self.proxies) + 1:
+                            packages.asyncio.create_task(log(f'Proxy blocked, cycling to next proxy (attempt {ProxyAttempts})'))
+                            return await self.__leaderboard__helper__(gamemode, stats, interval, mode, offset, limit, Recursion=Recursion)
+                        if use_proxy:
+                            packages.asyncio.create_task(log('All proxies blocked, falling back to no proxy'))
+                            return await self.__leaderboard__helper__(gamemode, stats, interval, mode, offset, limit, use_proxy=False)
+                    raise APIBlockedException()
+                else:
+                    raise APIResponseError()
+        except (packages.aiohttp.ClientError, packages.asyncio.TimeoutError) as e:
+            ProxyAttempts = 0
+            if proxy:
+                await self._mark_proxy_banned(proxy)
+                ProxyAttempts += 1
+                if self.proxies and ProxyAttempts < len(self.proxies) + 1:
+                    packages.asyncio.create_task(log(f'Connection error with proxy, cycling to next (attempt {ProxyAttempts}): {str(e)[:80]}'))
+                    return await self.__leaderboard__helper__(gamemode, stats, interval, mode, offset, limit, Recursion=Recursion)
+            if use_proxy and proxy:
+                packages.asyncio.create_task(log(f'All proxies failed, falling back to no proxy: {str(e)[:80]}'))
+                return await self.__leaderboard__helper__(gamemode, stats, interval, mode, offset, limit, use_proxy=False)
+            raise APIBlockedException(f'All proxies failed: {str(e)}')
 
 
     async def Leaderboard(
@@ -498,14 +587,12 @@ class Jartexnetwork:
         for _ in range(0, 14):
             Leaderboard_.append(self.__leaderboard__helper__(gamemode, stats, interval, mode, offset, 25))
             offset += 25
-
         return CombinedLeaderboard(await packages.asyncio.gather(*[task for task in Leaderboard_])).__Leaderboard__()
 
     
     async def Status(
             self,
-            *,
-            Recursion: 'Do_Not_Touch' = 0
+            **kwargs
         ) -> NetworkStatus:
         """
         Network Status API
@@ -514,24 +601,33 @@ class Jartexnetwork:
         Returns:
         - 'NetworkStatus'
         """
-        await jr_.avoid_rate_limits()
-        async with self.session.get("https://api.craftigames.net/count/play.jartexnetwork.com") as resp:
-            if resp.status == 200:
-                return NetworkStatus(packages.json.loads(await resp.text()))
-            elif Recursion <= allowed_recursion:
-                Recursion += 1
-                packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
-                await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
-                return await self.Status()
-            else:
-                return None
+        Recursion = kwargs.get('Recursion', 0)
+        use_proxy = kwargs.get('use_proxy', True)
+        proxy_count = len(self.proxies) if use_proxy else 0
+        await jr_.avoid_rate_limits(proxy_count)
+        proxy = self._get_next_proxy() if use_proxy else None
+        try:
+            async with self.session.get("https://api.craftigames.net/count/play.jartexnetwork.com", proxy=proxy) as resp:
+                if resp.status == 200:
+                    return NetworkStatus(packages.json.loads(await resp.text()))
+                elif Recursion <= allowed_recursion:
+                    Recursion += 1
+                    packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                    await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
+                    return await self.Status()
+                else:
+                    return None
+        except (packages.aiohttp.ClientError, packages.asyncio.TimeoutError) as e:
+            if proxy:
+                await self._mark_proxy_banned(proxy)
+            packages.asyncio.create_task(log(f'Connection error with proxy: {str(e)[:80]}'))
+            return None
 
     
     async def Recap(
             self,
             key: str,
-            *,
-            Recursion: 'Do_Not_Touch' = 0
+            **kwargs
         ) -> 'Recap':
         """
         Recap API
@@ -544,27 +640,32 @@ class Jartexnetwork:
         - Recap (class) if the correct key (recap_id) has been passed.
         - None if the the key (recap_id) is invaild.
         """
-        await jr_.avoid_rate_limits()
-        async with self.session.get(f"https://stats.jartexnetwork.com/api/recaps/{key}") as resp:
-
+        ProxyAttempts = 0
+        use_proxy = kwargs.get('use_proxy', True)
+        proxy_count = len(self.proxies) if use_proxy else 0
+        await jr_.avoid_rate_limits(proxy_count)
+        proxy = self._get_next_proxy() if use_proxy else None
+        async with self.session.get(f"https://stats.jartexnetwork.com/api/recaps/{key}", proxy=proxy) as resp:
             status = resp.status
-
             if status == 200:
                 return Recap(await resp.json())
-            
             elif status == 404 or status == 400 or status == 204:
                 packages.asyncio.create_task(log(key, ': recap not found!'))
                 return None
-            
             elif status == 429 and Recursion <= allowed_recursion:
                 Recursion += 1
                 packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
                 await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
                 return await self.Recap(key, Recursion=Recursion)
-            
             elif status == 403:
+                ProxyAttempts = 0
+                if proxy:
+                    await self._mark_proxy_banned(proxy)
+                    ProxyAttempts += 1
+                    if self.proxies and ProxyAttempts < len(self.proxies) + 1:
+                        packages.asyncio.create_task(log(f'Proxy blocked, cycling to next proxy (attempt {ProxyAttempts})'))
+                        return await self.Recap(key, Recursion=Recursion)
                 raise APIBlockedException()
-            
             else:
                 raise APIResponseError()
 
@@ -572,8 +673,7 @@ class Jartexnetwork:
     async def Punishment(
             self,
             player: str,
-            *,
-            Recursion: 'Do_Not_Touch' = 0
+            **kwargs
         ) -> Union[History, None]:
         """
         Punishment
@@ -610,25 +710,40 @@ class Jartexnetwork:
         
         asyncio.run(Example(player='AnyPlayer'))
         """
-        await jr_.avoid_rate_limits()
-        async with self.session.get(f'https://jartexnetwork.com/bans/search/{player}/') as resp:
-            status = resp.status
+        ProxyAttempts = 0
+        use_proxy = kwargs.get('use_proxy', True)
+        proxy_count = len(self.proxies) if use_proxy else 0
+        await jr_.avoid_rate_limits(proxy_count)
+        proxy = self._get_next_proxy() if use_proxy else None
+        try:
+            async with self.session.get(f'https://jartexnetwork.com/bans/search/{player}/', proxy=proxy) as resp:
+                status = resp.status
+                if status == 200:
+                    return History(await resp.text())
+                elif status == 429 and Recursion <= allowed_recursion:
+                    Recursion += 1
+                    packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
+                    await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
+                    return await self.Punishment(player)
+                elif status == 403:
+                    if proxy:
+                        await self._mark_proxy_banned(proxy)
+                        ProxyAttempts += 1
+                        if self.proxies and ProxyAttempts < len(self.proxies) + 1:
+                            packages.asyncio.create_task(log(f'Proxy blocked, cycling to next proxy (attempt {ProxyAttempts})'))
+                            return await self.Punishment(player)
+                    raise APIBlockedException()
+                else:
+                    raise APIResponseError()
+        except (packages.aiohttp.ClientError, packages.asyncio.TimeoutError) as e:
+            if proxy:
+                await self._mark_proxy_banned(proxy)
+                ProxyAttempts += 1
+                if self.proxies and ProxyAttempts < len(self.proxies) + 1:
+                    packages.asyncio.create_task(log(f'Connection error with proxy, cycling to next (attempt {ProxyAttempts}): {str(e)[:80]}'))
+                    return await self.Punishment(player)
+            raise APIBlockedException(f'All proxies failed: {str(e)}')
 
-            if status == 200:
-                return History(await resp.text())
-            
-            elif status == 429 and Recursion <= allowed_recursion:
-
-                Recursion += 1
-                packages.asyncio.create_task(log('Exceeded ratelimit: ', Recursion, 'X'))
-                await packages.asyncio.sleep(delay_after_exceeding_ratelimit)
-                return await self.Punishment(player)
-            
-            elif status == 403:
-                raise APIBlockedException()
-            
-            else:
-                raise APIResponseError()
 
     # MultiProcessings
 
@@ -678,9 +793,11 @@ class Jartexnetwork:
         asyncio.run(example())
         """
         profile = []
+        
+        optimal_batch_size, optimal_batch_delay = self._get_optimal_batch_params()
 
-        for i in range(0, len(players), batch_size):
-            batch_members = players[i:i + batch_size]
+        for i in range(0, len(players), optimal_batch_size):
+            batch_members = players[i:i + optimal_batch_size]
             batch_member_stats = await packages.asyncio.gather(*(api.Profile(member) for member in batch_members))
             for member, member_stats in zip(batch_members, batch_member_stats):
                 if member_stats is None:
@@ -689,7 +806,7 @@ class Jartexnetwork:
 
                 profile.append((member, member_stats))
 
-            await packages.asyncio.sleep(batch_delay)
+            await packages.asyncio.sleep(optimal_batch_delay)
 
         return profile
     
@@ -746,9 +863,11 @@ class Jartexnetwork:
         asyncio.run(example())
         """
         stats = []
+        
+        optimal_batch_size, optimal_batch_delay = self._get_optimal_batch_params()
 
-        for i in range(0, len(players), batch_size):
-            batch_members = players[i:i + batch_size]
+        for i in range(0, len(players), optimal_batch_size):
+            batch_members = players[i:i + optimal_batch_size]
             batch_member_stats = await packages.asyncio.gather(*(api.Stats(member, gamemode, interval, mode) for member in batch_members))
             for member, member_stats in zip(batch_members, batch_member_stats):
                 if member_stats is None:
@@ -757,7 +876,7 @@ class Jartexnetwork:
 
                 stats.append((member, member_stats))
 
-            await packages.asyncio.sleep(batch_delay)
+            await packages.asyncio.sleep(optimal_batch_delay)
 
         return stats
     
@@ -808,9 +927,11 @@ class Jartexnetwork:
         asyncio.run(example())
         """
         guilds_ = []
+        
+        optimal_batch_size, optimal_batch_delay = self._get_optimal_batch_params()
 
-        for i in range(0, len(guilds), batch_size):
-            batch_guilds = guilds[i:i + batch_size]
+        for i in range(0, len(guilds), optimal_batch_size):
+            batch_guilds = guilds[i:i + optimal_batch_size]
             batch_guild_ = await packages.asyncio.gather(*(api.Guild(guild) for guild in batch_guilds))
             for guild, guild_api in zip(batch_guilds, batch_guild_):
                 if guild_api is None:
@@ -819,7 +940,7 @@ class Jartexnetwork:
 
                 guilds_.append((guild, guild_api))
 
-            await packages.asyncio.sleep(batch_delay)
+            await packages.asyncio.sleep(optimal_batch_delay)
 
         return guilds_
     
@@ -870,9 +991,11 @@ class Jartexnetwork:
         asyncio.run(example())
         """
         recaps = []
+        
+        optimal_batch_size, optimal_batch_delay = self._get_optimal_batch_params()
 
-        for i in range(0, len(ids), batch_size):
-            batch_keys = ids[i:i + batch_size]
+        for i in range(0, len(ids), optimal_batch_size):
+            batch_keys = ids[i:i + optimal_batch_size]
             batch_keys_ = await packages.asyncio.gather(*(api.Recap(key) for key in batch_keys))
             for recap_id, recap_api in zip(batch_keys, batch_keys_):
                 if recap_api is None:
@@ -881,6 +1004,6 @@ class Jartexnetwork:
 
                 recaps.append((recap_id, recap_api))
 
-            await packages.asyncio.sleep(batch_delay)
+            await packages.asyncio.sleep(optimal_batch_delay)
 
         return recaps

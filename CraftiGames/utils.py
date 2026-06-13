@@ -29,7 +29,8 @@ class packages:
     import time
     from datetime import (
         datetime,
-        timedelta
+        timedelta,
+        timezone
     )
     from bs4 import BeautifulSoup
     from io import BytesIO
@@ -47,101 +48,68 @@ class packages:
 class Weekly:
     """Represents weekly interval."""
     def __str__(self) -> packages.Literal["weekly"]: return "weekly"
-    
 class Monthly:
     """Represents monthly interval."""
     def __str__(self) -> packages.Literal["monthly"]: return "monthly"
-    
 class Yearly:
     """Represents yearly interval."""
     def __str__(self) -> packages.Literal["yearly"]: return "yearly"
-    
 class Total:
     """Represents all times."""
     def __str__(self) -> packages.Literal["total"]: return "total"
-
 class All_Modes:
     """Represents all_modes."""
     def __str__(self) -> packages.Literal["all_modes"]: return "all_modes"
-    
 class Solo:
     """Represents solo gamemode."""
     def __str__(self) -> packages.Literal["solo"]: return "solo"
-    
 class Doubles:
     """Represents doubles mode."""
     def __str__(self) -> packages.Literal["doubles"]: return "doubles"
-    
 class Triples:
     """Represents triples mode."""
     def __str__(self) -> packages.Literal["triples"]: return "triples"
-    
 class Quadriples:
     """Represents quadriples modes."""
     def __str__(self) -> packages.Literal["quad"]: return "quad"
 
 class Gamemodes:
-
     """List of available gamemodes"""
-    
     @property
     def bedwars() -> packages.Literal['bedwars']: return "bedwars"
-    
     @property
     def skywars() -> packages.Literal['skywars']: return "skywars"
-    
     @property
     def unrankedpractice() -> packages.Literal['unrankedpractice']: return "unrankedpractice"
-    
     @property
     def rankedpractice() -> packages.Literal['rankedpractice']: return "rankedpractice"
-    
     def all() -> packages.List[str]: return ['bedwars', 'skywars', 'unrankedpractice', 'rankedpractice']
     
 class Intervals:
-
     """List of available intervals"""
-    
     @property
     def weekly() -> packages.Literal["weekly"]: return "weekly"
-
     @property
     def monthly() -> packages.Literal["monthly"]: return "monthly"
-
     @property
     def yearly() -> packages.Literal["yearly"]: return "yearly"
-    
     @property
     def total() -> packages.Literal["total"]: return "total"
-    
     def all() -> packages.List[str]: return ['weekly', 'monthly', 'yearly', 'total']
 
 class Modes:
-
     """List of available modes"""
-    
     @property
-    def all_modes():
-        return "ALL_MODES"
-    
+    def all_modes():return "ALL_MODES"
     @property
-    def solo():
-        return "SOLO"
-    
+    def solo():return "SOLO"
     @property
-    def doubles():
-        return "DOUBLES"
-    
+    def doubles():return "DOUBLES"
     @property
-    def triples():
-        return "TRIPLES"
-    
+    def triples():return "TRIPLES"
     @property
-    def quad():
-        return "QUAD"
-    
-    def all() -> list:
-        return ['ALL_MODES', 'SOLO', 'DOUBLES', 'TRIPLES', 'QUAD']
+    def quad():return "QUAD"
+    def all() -> list:return ['ALL_MODES', 'SOLO', 'DOUBLES', 'TRIPLES', 'QUAD']
     
 
 class APIResponseError(Exception):
@@ -156,14 +124,9 @@ class APIBlockedException(Exception):
         self.message = message
         super().__init__(self.message)
     
-class Do_Not_Touch: ...
-
 class UnixTimestamp: ...
-
 class Missing:
-
-    def __str__(self) -> str:
-        return  'Missing Arguments!'
+    def __str__(self) -> str:return  'Missing Arguments!'
 
 class aiohttpClientHeader:
     user_agents = [
@@ -377,7 +340,7 @@ class aiohttpClientHeader:
     ]
 
 
-async def header() -> aiohttpClientHeader:
+def header() -> aiohttpClientHeader:
     headers = {
         'User-Agent': packages.random.choice(aiohttpClientHeader.user_agents),
         'Device-Id': packages.random.choice(aiohttpClientHeader.device_ids)

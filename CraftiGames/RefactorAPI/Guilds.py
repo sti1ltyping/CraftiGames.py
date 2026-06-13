@@ -119,7 +119,11 @@ class Guild:
         Returns:
         - Guild member's list.
         """    
-        return [username["user"]["username"] for username in self.raw.get("members", [])]
+        return [
+                m["user"]["username"]
+                for m in self.raw.get("members", [])
+                if m.get("user")
+            ]
         
     @property
     def member_count(self) -> int:
@@ -241,7 +245,11 @@ class Clan:
         Returns:
         - Clan member's list.
         """    
-        return [username["user"]["username"] for username in self.raw.get("members", [])]
+        return [
+            m["user"]["username"]
+            for m in self.raw.get("members", [])
+            if m.get("user")
+        ]
         
     @property
     def member_count(self) -> int:

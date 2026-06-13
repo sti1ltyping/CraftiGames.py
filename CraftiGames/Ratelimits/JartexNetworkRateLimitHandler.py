@@ -29,9 +29,13 @@ from CraftiGames.utils import packages  # type: ignore
 last_request_time = packages.time.time()
 API_requests = 0
 
-async def avoid_rate_limits():
+async def avoid_rate_limits(proxy_count: int = 0):
     """
-    Handles rate limits for `PikaNetwork`'s API.
+    Handles rate limits for `JartexNetwork`'s API.
+    
+    Parameters:
+        - proxy_count (int): Number of proxies in use. Each proxy has its own rate limit quota,
+          so the effective rate limit is multiplied by proxy_count.
     """
 
     from CraftiGames.utils import config # type: ignore
@@ -48,8 +52,14 @@ async def avoid_rate_limits():
         last_request_time = current_time
 
     API_requests += 1
+    
+    # When using proxies, each IP has its own rate limit quota
+    # Multiply the allowed rate by proxy count
+    max_requests = config.max_requests_per_interval
+    if proxy_count > 0:
+        max_requests = config.max_requests_per_interval * proxy_count
 
-    if API_requests > config.max_requests_per_interval:
+    if API_requests > max_requests:
         packages.asyncio.create_task(log('Max request per interval reached: Delayed for: ', delay, ' sec'))
         await packages.asyncio.sleep(delay)
         API_requests = 0

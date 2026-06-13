@@ -54,10 +54,10 @@ class CombinedLeaderboard:
 
     def __init__(self, data: list[dict]) -> None:
         self.data: list[dict] = data
-        self.total_entry = self.__combined__()
+        self.total_entry = self.c()
 
     
-    def __combined__(self) -> list[dict]:
+    def c(self) -> list[dict]:
 
         total_entry = []
         for index in self.data:
